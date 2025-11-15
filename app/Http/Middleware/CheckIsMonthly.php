@@ -22,7 +22,7 @@ class CheckIsMonthly {
             return redirect()->route('login');
         }
 
-        if ($user->created_at->greaterThanOrEqualTo(now()->subDays(7))) {
+        if ($user->created_at->greaterThanOrEqualTo(now()->subDays(7)) || $user->type === 'admin' || $user->type === 'collaborator') {
             return $next($request);
         }
 

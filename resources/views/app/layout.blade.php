@@ -201,13 +201,19 @@
                                     <li class="menu-item">
                                         <a href="{{ route('app') }}" class="menu-link menu-toggle">
                                             <i class="menu-icon tf-icons ri-home-fill"></i>
-                                            <div data-i18n="Início">Início</div>
+                                            <div data-i18n="Escritório">Escritório</div>
                                         </a>
                                         <ul class="menu-sub">
                                             <li class="menu-item">
                                                 <a href="{{ route('app') }}" class="menu-link">
                                                     <i class="menu-icon tf-icons ri-home-fill"></i>
-                                                    <div data-i18n="Início">Início</div>
+                                                    <div data-i18n="Escritório">Escritório</div>
+                                                </a>
+                                            </li>
+                                            <li class="menu-item">
+                                                <a href="{{ route('wallet') }}" class="menu-link">
+                                                    <i class="menu-icon ri-wallet-line ri-22px scaleX-n1-rtl"></i>
+                                                    <div data-i18n="Carteira">Carteira</div>
                                                 </a>
                                             </li>
                                             <li class="menu-item">

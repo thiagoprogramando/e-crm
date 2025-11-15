@@ -3,32 +3,28 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Commission extends Model {
+class Withdraw extends Model {
 
-    protected $table = 'commissions';
+    use SoftDeletes;
+
+    protected $table = 'withdrawals';
     
     protected $fillable = [
         'uuid',
         'user_id',
-        'product_id',
+        'payment_key',
         'payment_token',
+        'payment_url',
         'value',
         'description',
         'confirmed_at',
-        'is_paid'
+        'is_paid',
     ];
 
     public function user() {
         return $this->belongsTo(User::class);
-    }
-
-    public function product() {
-        return $this->belongsTo(Product::class);
-    }
-
-    public function sale() {
-        return $this->belongsTo(Sale::class);
     }
 
     public function statusLabel() {
@@ -38,7 +34,7 @@ class Commission extends Model {
 
         if (!$this->is_paid) {
             return '
-                <span class="badge bg-warning me-1">
+                <span class="badge bg-info me-1">
                     Solicitado em ' . $created . '
                 </span>
             ';

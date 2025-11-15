@@ -7,6 +7,7 @@ use App\Http\Controllers\AppController;
 use App\Http\Controllers\Contract\ContractController;
 use App\Http\Controllers\Contract\TemplateController;
 use App\Http\Controllers\Finance\WalletController;
+use App\Http\Controllers\Finance\WithdrawalController;
 use App\Http\Controllers\Product\PaymentOptionController;
 use App\Http\Controllers\Product\ProductController;
 use App\Http\Controllers\Product\SubscriptionController;
@@ -40,6 +41,12 @@ Route::middleware(['auth'])->group(function () {
      Route::post('/updated-user/{uuid}', [UserController::class, 'update'])->name('updated-user');
 
     Route::middleware(['CheckIsMonthly'])->group(function () {
+
+        Route::get('/wallet', [WalletController::class, 'index'])->name('wallet');
+        Route::post('/created-deposit', [WalletController::class, 'store'])->name('created-deposit');
+
+        Route::post('/created-withdrawal', [WithdrawalController::class, 'store'])->name('created-withdrawal');
+        Route::post('/deleted-withdrawal/{uuid}', [WithdrawalController::class, 'destroy'])->name('deleted-withdrawal');
 
         Route::get('/sales', [SaleController::class, 'index'])->name('sales');
         Route::post('/created-sale', [SaleController::class, 'store'])->name('created-sale');

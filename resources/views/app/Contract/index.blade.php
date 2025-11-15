@@ -117,18 +117,19 @@
                                         <div class="user-status me-2 d-flex align-items-center">
                                             {!! $contract->statusLabel() !!}
                                             @if($contract->signed_at)
-                                                <span class="badge bg-info me-1">{{ \Carbon\Carbon::parse($contract->signed_at)->format('d/m/Y H:i:s') }}</span>
+                                                <span class="badge bg-info me-1 d-none d-md-flex ">{{ \Carbon\Carbon::parse($contract->signed_at)->format('d/m/Y H:i:s') }}</span>
                                             @endif
                                             @if($contract->signed_ip)
-                                                <span class="badge bg-info me-1" onclick="onClip('{{ $contract->signed_ip }}')">{{ $contract->signed_ip }}</span>
+                                                <span class="badge bg-info me-1 d-none d-md-flex " onclick="onClip('{{ $contract->signed_ip }}')">{{ $contract->signed_ip }}</span>
                                             @endif
-                                            <span class="badge bg-dark me-1" onclick="onClip('{{ route('contract', ['uuid' => $contract->uuid]) }}')">{{ route('contract', ['uuid' => $contract->uuid]) }}</span>
+                                            <span class="badge bg-dark me-1 d-none d-md-flex " onclick="onClip('{{ route('contract', ['uuid' => $contract->uuid]) }}')">{{ route('contract', ['uuid' => $contract->uuid]) }}</span>
                                         </div> 
                                     </div>
                                 </div>
-                                <form action="{{ route('deleted-contract', ['uuid' => $contract->uuid]) }}" method="POST" class="add-btn delete">
+                                <form action="{{ route('deleted-contract', ['uuid' => $contract->uuid]) }}" method="POST" class="btn-group delete">
                                     @csrf
-                                    <button type="submit" class="btn btn-danger btn-sm" title="Excluir contract"><i class="ri-delete-bin-line"></i></button>
+                                    <button type="button" class="btn btn-outline-dark btn-sm" title="Copiar URL do Contrato" onclick="onClip('{{ route('contract', ['uuid' => $contract->uuid]) }}')"><i class="ri-file-copy-line"></i></button>
+                                    <button type="submit" class="btn btn-outline-dark btn-sm" title="Excluir Contrato"><i class="ri-delete-bin-line"></i></button>
                                 </form>
                             </div>
                         </div>

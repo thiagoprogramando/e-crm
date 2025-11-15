@@ -220,6 +220,11 @@ class AssasController extends Controller {
                 $invoice->payment_status = 'PAID';
                 $invoice->payment_date   = now();
                 if ($invoice->save()) {
+
+                    if ($invoice->payment_type === 'DEPOSIT') {
+                        $invoice->user->increment('wallet', $invoice->value);
+                    }
+
                     return response()->json(['message' => 'Fatura Atualizada para Paga!'], 200);
                 } else {
                     return response()->json(['message' => 'Falha ao tentar Atualizar Fatura!'], 400);

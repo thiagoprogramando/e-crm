@@ -199,37 +199,37 @@
                                             {!! $product->statusLabel() !!}
                                         </div>
                                         @if (Auth::user()->type === 'admin')
-                                            <div class="user-status me-2 d-flex align-items-center">
+                                            <div class="user-status me-2 d-flex align-items-center d-none d-md-flex">
                                                 <span class="badge badge-dot bg-info me-1"></span>
                                                 <small>Vendas: 0 |</small>
                                             </div>
-                                            <div class="user-status me-2 d-flex align-items-center">
+                                            <div class="user-status me-2 d-flex align-items-center d-none d-md-flex">
                                                 <span class="badge badge-dot bg-primary me-1"></span>
                                                 <small>R$ {{ number_format($product->value, 2, ',', '.') }} |</small>
                                             </div>
-                                            <div class="user-status me-2 d-flex align-items-center">
+                                            <div class="user-status me-2 d-flex align-items-center d-none d-md-flex">
                                                 <span class="badge badge-dot bg-dark me-1"></span>
                                                 <small>Acesso: {{ $product->accessLabel() }} </small>
                                             </div>
                                         @else
-                                            <div class="user-status me-2 d-flex align-items-center">
+                                            <div class="user-status me-2 d-flex align-items-center d-none d-md-flex">
                                                 <span class="badge badge-dot bg-info me-1"></span>
                                                 <small>Vendas: 0 |</small>
                                             </div>
-                                            <div class="user-status me-2 d-flex align-items-center">
+                                            <div class="user-status me-2 d-flex align-items-center d-none d-md-flex">
                                                 <span class="badge badge-dot bg-primary me-1"></span>
                                                 <small>R$ {{ number_format($product->value, 2, ',', '.') }} |</small>
                                             </div>
                                         @endif
                                     </div>
                                 </div>
-                                <form action="{{ route('deleted-product', ['uuid' => $product->uuid]) }}" method="POST" class="add-btn delete">
+                                <form action="{{ route('deleted-product', ['uuid' => $product->uuid]) }}" method="POST" class="btn-group delete">
                                     @csrf
-                                    <button type="button" class="btn btn-warning text-white btn-sm"  data-bs-toggle="modal" data-bs-target="#detailsModal{{ $product->uuid }}" title="Detalhes do Produto"><i class="ri-eye-line"></i></button>
+                                    <button type="button" class="btn btn-outline-dark btn-sm"  data-bs-toggle="modal" data-bs-target="#detailsModal{{ $product->uuid }}" title="Detalhes do Produto"><i class="ri-eye-line"></i></button>
                                     @if (Auth::user()->type === 'admin')
-                                        <button type="button" class="btn btn-success text-white btn-sm"  data-bs-toggle="modal" data-bs-target="#updatedModal{{ $product->uuid }}" title="Editar Produto"><i class="ri-menu-search-line"></i></button>
-                                        <button type="button" class="btn btn-info text-white btn-sm"  data-bs-toggle="modal" data-bs-target="#optionModal{{ $product->uuid }}" title="Configurações do Produto"><i class="ri-hand-coin-line"></i></button>
-                                        <button type="submit" class="btn btn-danger btn-sm" title="Excluir Produto"><i class="ri-delete-bin-line"></i></button>
+                                        <button type="button" class="btn btn-outline-dark btn-sm"  data-bs-toggle="modal" data-bs-target="#updatedModal{{ $product->uuid }}" title="Editar Produto"><i class="ri-menu-search-line"></i></button>
+                                        <button type="button" class="btn btn-outline-dark btn-sm"  data-bs-toggle="modal" data-bs-target="#optionModal{{ $product->uuid }}" title="Configurações do Produto"><i class="ri-hand-coin-line"></i></button>
+                                        <button type="submit" class="btn btn-outline-dark btn-sm" title="Excluir Produto"><i class="ri-delete-bin-line"></i></button>
                                     @endif
                                 </form>
                             </div>

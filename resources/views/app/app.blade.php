@@ -10,13 +10,13 @@
                 <p class="card-subtitle mb-3">
                     {{ \Carbon\Carbon::now()->locale('pt_BR')->isoFormat('dddd [às] HH:mm') }}
                 </p>
-                <h4 class="text-success mb-0">
-                    R$ {{ number_format(Auth::user()->wallet, 2, ',', '.') }}
+                <h4 class="mb-0">
+                    <a href="{{ route('wallet') }}" class="text-success">R$ {{ number_format(Auth::user()->wallet, 2, ',', '.') }}</a>
                 </h4>
                 <p class="mb-3">Cash-Back, Assinaturas, Bônus e muito mais! 😍</p>
                 <button type="button" class="btn btn-sm btn-warning waves-effect waves-light" data-bs-toggle="modal" data-bs-target="#createdModal">Enviar Cliente</button>
             </div>
-            <img src="{{ asset('assets/img/illustrations/trophy.png') }}" class="scaleX-n1-rtl position-absolute bottom-0 end-0 me-4 mb-4" height="162" alt="Bem-vindo(a)! {{ Auth::user()->maskName() }}">
+            <img src="{{ asset('assets/img/illustrations/trophy.png') }}" class="scaleX-n1-rtl position-absolute bottom-0 end-0 me-4 mb-4 d-none d-md-block" height="162" alt="Bem-vindo(a)! {{ Auth::user()->maskName() }}">
         </div>
 
         @isset($list)

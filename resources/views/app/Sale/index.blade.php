@@ -45,10 +45,11 @@
                                         </div>
                                     </div>
                                 </div>
-                                <form action="{{ route('deleted-sale', ['uuid' => $sale->uuid]) }}" method="POST" class="add-btn delete">
+                                <form action="{{ route('deleted-sale', ['uuid' => $sale->uuid]) }}" method="POST" class="btn-group delete">
                                     @csrf
-                                    <button type="button" class="btn btn-success text-white btn-sm"  data-bs-toggle="modal" data-bs-target="#updatedModal{{ $sale->uuid }}" title="Editar Usuário"><i class="ri-menu-search-line"></i></button>
-                                    <button type="submit" class="btn btn-danger btn-sm" title="Excluir Usuário"><i class="ri-delete-bin-line"></i></button>
+                                    <a href="{{  $sale->payment_url }}" target="_blank" class="btn btn-outline-dark btn-sm" title="Acessar"><i class="ri-refund-2-line"></i></a>
+                                    <button type="button" class="btn btn-outline-dark btn-sm"  data-bs-toggle="modal" data-bs-target="#updatedModal{{ $sale->uuid }}" title="Editar Usuário"><i class="ri-menu-search-line"></i></button>
+                                    <button type="submit" class="btn btn-outline-dark btn-sm" title="Excluir Usuário"><i class="ri-delete-bin-line"></i></button>
                                 </form>
                             </div>
                         </div>
