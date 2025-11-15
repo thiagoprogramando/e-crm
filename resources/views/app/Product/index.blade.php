@@ -1,6 +1,10 @@
 @extends('app.layout')
 @section('content')
 
+    <link rel="stylesheet" href="{{ asset('assets/vendor/libs/quill/typography.css') }}"/>
+    <link rel="stylesheet" href="{{ asset('assets/vendor/libs/quill/katex.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/vendor/libs/quill/editor.css') }}"/>
+
     <div class="col-12 col-sm-12 col-md-12 col-lg-12">
         @if (Auth::user()->type === 'admin')
             <div class="kanban-add-new-board mb-5">
@@ -16,7 +20,7 @@
 
             <div class="modal fade" id="createdModal" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog modal-lg" role="document">
-                    <form action="{{ route('created-product') }}" method="POST" enctype="multipart/form-data" class="modal-content">
+                    <form action="{{ route('created-product') }}" method="POST" enctype="multipart/form-data" class="modal-content" id="formCreate">
                         @csrf
                         <div class="modal-header">
                             <h4 class="modal-title" id="modalFullTitle">Novo Produto</h4>
@@ -31,9 +35,13 @@
                                     </div>
                                 </div>
                                 <div class="col-12 col-sm-12 col-md-12 col-lg-12">
-                                    <div class="form-floating form-floating-outline mb-2">
-                                        <textarea class="form-control h-px-100 editor" name="description" id="description" placeholder="O Rating é uma forma legal de..."></textarea>
+                                    <div class="full-editor">
+                                        <h6>Contrato de Prestação de Serviço</h6>
+                                        <p>
+                                            De um lado, '@{{ CUSTOMER_NAME }}' denominada CONTRATANTE, e de outro lado, '@{{ COMPANY_NAME }}' denominada CONTRATADA.
+                                        </p>
                                     </div>
+                                    <textarea name="description" id="description" hidden></textarea>
                                 </div>
                                 <div class="col-12 col-sm-12 col-md-6 col-lg-6">
                                     <div class="form-floating form-floating-outline mb-2">
@@ -230,7 +238,7 @@
 
                     <div class="modal fade" id="updatedModal{{ $product->uuid }}" tabindex="-1" aria-hidden="true">
                         <div class="modal-dialog modal-lg" role="document">
-                            <form action="{{ route('updated-product', ['uuid' => $product->uuid]) }}" method="POST" enctype="multipart/form-data" class="modal-content">
+                            <form action="{{ route('updated-product', ['uuid' => $product->uuid]) }}" method="POST" enctype="multipart/form-data" class="modal-content" data-id="{{ $product->uuid }}" id="formUpdate">
                                 @csrf
                                 <div class="modal-header">
                                     <h4 class="modal-title" id="modalFullTitle">Detalhes do Produto</h4>
@@ -245,9 +253,10 @@
                                             </div>
                                         </div>
                                         <div class="col-12 col-sm-12 col-md-12 col-lg-12">
-                                            <div class="form-floating form-floating-outline mb-2">
-                                                <textarea class="form-control h-px-100 editor" name="description" id="description" placeholder="O Rating é uma forma legal de...">{{ $product->description }}</textarea>
+                                            <div class="full-editor" data-id="{{ $product->uuid }}">
+                                                {!! $product->description !!}
                                             </div>
+                                            <textarea name="description" id="description{{ $product->uuid }}" hidden></textarea>
                                         </div>
                                         <div class="col-12 col-sm-12 col-md-6 col-lg-6">
                                             <div class="form-floating form-floating-outline mb-2">
@@ -374,7 +383,7 @@
                                                         </div>
                                                         <div class="col-12 col-sm-12 col-md-12 col-lg-12">
                                                             <div class="form-floating form-floating-outline mb-2">
-                                                                <input type="text" class="form-control" name="description" placeholder="Descrição" required/>
+                                                                <textarea class="form-control h-px-100" name="description" id="description" placeholder="Ex: Comissão R$ 197"></textarea>
                                                                 <label for="description">Descrição</label>
                                                             </div>
                                                         </div>
@@ -483,4 +492,95 @@
 
     <script src="https://cdn.tiny.cloud/1/tgezwiu6jalnw1mma8qnoanlxhumuabgmtavb8vap7357t22/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
     <script src="{{ asset('assets/js/tinymce.js') }}"></script>
+    <script src="{{ asset('assets/vendor/libs/quill/katex.js') }}"></script>
+    <script src="{{ asset('assets/vendor/libs/quill/quill.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const fullToolbar = [
+                [
+                { font: [] },
+                { size: [] }
+                ],
+                ['bold', 'italic', 'underline', 'strike'],
+                [
+                { color: [] },
+                { background: [] }
+                ],
+                [
+                { script: 'super' },
+                { script: 'sub' }
+                ],
+                [
+                { header: '1' },
+                { header: '2' },
+                'blockquote',
+                'code-block'
+                ],
+                [
+                { list: 'ordered' },
+                { list: 'bullet' },
+                { indent: '-1' },
+                { indent: '+1' }
+                ],
+                [{ direction: 'rtl' }],
+                ['link', 'image', 'video', 'formula'],
+                ['clean']
+            ];
+
+            const editors = document.querySelectorAll('.full-editor');
+            const quills = {};
+
+            editors.forEach((editor, index) => {
+                const id = editor.getAttribute("data-id") ?? index;
+
+                quills[id] = new Quill(editor, {
+                    bounds: editor,
+                    placeholder: 'Digite o conteúdo do contrato...',
+                    modules: {
+                        formula: true,
+                        toolbar: fullToolbar
+                    },
+                    theme: 'snow'
+                });
+            });
+
+            const create = document.getElementById('formCreate');
+            if (create) {
+                create.addEventListener('submit', function (event) {
+                    event.preventDefault();
+
+                    const firstQuillId = Object.keys(quills)[0];
+                    const html = quills[firstQuillId].root.innerHTML.trim();
+
+                    document.getElementById('description').value = html;
+
+                    create.submit();
+                });
+            }
+
+            document.querySelectorAll('form[data-id]').forEach(form => {
+                form.addEventListener('submit', function (event) {
+                    event.preventDefault();
+
+                    // UUID específico daquele form
+                    const uuid = form.getAttribute('data-id');
+
+                    // Pega o editor dentro SÓ deste form
+                    const editorDiv = form.querySelector('.full-editor .ql-editor');
+
+                    // Textarea correspondente
+                    const textarea = document.getElementById('description' + uuid);
+
+                    // Conteúdo HTML do Quill
+                    const html = editorDiv.innerHTML.trim();
+
+                    // Coloca no textarea
+                    textarea.value = html;
+
+                    // Agora envia de verdade
+                    form.submit();
+                });
+            });
+         });
+    </script>
 @endsection

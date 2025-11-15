@@ -10,8 +10,8 @@
                 <p class="card-subtitle mb-3">
                     {{ \Carbon\Carbon::now()->locale('pt_BR')->isoFormat('dddd [às] HH:mm') }}
                 </p>
-                <h4 class="text-primary mb-0">
-                    <a class="text-warning" href="">R$ 100,00</a>
+                <h4 class="text-success mb-0">
+                    R$ {{ number_format(Auth::user()->wallet, 2, ',', '.') }}
                 </h4>
                 <p class="mb-3">Cash-Back, Assinaturas, Bônus e muito mais! 😍</p>
                 <button type="button" class="btn btn-sm btn-warning waves-effect waves-light" data-bs-toggle="modal" data-bs-target="#createdModal">Enviar Cliente</button>
