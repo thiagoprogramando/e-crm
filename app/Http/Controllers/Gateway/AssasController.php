@@ -309,7 +309,7 @@ class AssasController extends Controller {
             return response()->json(['message' => 'Nenhum registro atualizado!'], 200);
         };
 
-        if ($jsonData['event'] === 'PAYMENT_RESTORED' || $jsonData['event'] === 'PAYMENT_RECEIVED_IN_CASH_UNDONE') {
+        if ($jsonData['event'] === 'PAYMENT_RESTORED' || $jsonData['event'] === 'PAYMENT_RECEIVED_IN_CASH_UNDONE' || $jsonData['event'] === 'PAYMENT_REFUND_DENIED') {
 
             $sale = Sale::where('payment_token', $token)->first();
             if ($sale) {
