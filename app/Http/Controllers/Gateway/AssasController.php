@@ -329,9 +329,55 @@ class AssasController extends Controller {
                 $invoice->payment_status = 'PENDING';
                 $invoice->payment_date   = null;
                 if ($invoice->save()) {
-                    return response()->json(['message' => 'Fatura Atualizada para Cancelada!'], 200);
+                    return response()->json(['message' => 'Fatura Atualizada para pendente!'], 200);
                 } else {
-                    return response()->json(['message' => 'Falha ao tentar Cancelar Fatura!'], 400);
+                    return response()->json(['message' => 'Falha ao tentar Atualizar Fatura!'], 400);
+                }
+            }
+
+            return response()->json(['message' => 'Nenhum registro atualizado!'], 200);
+        };
+
+        if ($jsonData['event'] === 'PAYMENT_RECEIVED_IN_CASH_UNDONE' || $jsonData['event'] === 'PAYMENT_REFUND_DENIED') {
+
+            $sale = Sale::where('payment_token', $token)->first();
+            if ($sale) {
+
+                $sale->payment_status = 'PENDING';
+                $sale->payment_date = null;
+                if ($sale->save()) {
+
+                    $commissionTotal    = Commission::where('payment_token', $sale->uuid)->whereNotNull('confirmed_at')->sum('value');
+                    $commissions        = Commission::where('payment_token', $sale->uuid)->whereNotNull('confirmed_at') // <- estava errado usar whereNull()
+                                            ->update([
+                                                'is_paid'      => false,
+                                                'confirmed_at' => null,
+                                            ]);
+
+                    if ($commissionTotal > 0) {
+                        $sale->user->decrement('wallet', $commissionTotal);
+                    }
+    
+                    return response()->json(['message' => 'Venda restaurada via Banco!'], 200);
+                } else {
+                    return response()->json(['message' => 'Falha ao tentar restaurar a Venda!'], 400);
+                }
+            }
+
+            $invoice = Invoice::where('payment_token', $token)->first();
+            if ($invoice) {
+
+                $invoice->payment_status = 'PENDING';
+                $invoice->payment_date   = null;
+                if ($invoice->save()) {
+
+                    if ($invoice->payment_type === 'DEPOSIT') {
+                        $invoice->user->decrement('wallet', $invoice->value);
+                    }
+
+                    return response()->json(['message' => 'Fatura Atualizada para pendente!'], 200);
+                } else {
+                    return response()->json(['message' => 'Falha ao tentar Atualizar Fatura!'], 400);
                 }
             }
 
