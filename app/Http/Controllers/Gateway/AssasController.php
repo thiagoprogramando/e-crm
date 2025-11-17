@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Gateway;
 
 use App\Http\Controllers\Controller;
+use App\Models\Commission;
 use App\Models\Invoice;
 use App\Models\Lists;
 use App\Models\Sale;
@@ -242,6 +243,12 @@ class AssasController extends Controller {
                 if ($option && $sale->user->parent && ($option->commission_parent > 0)) {
                     $sale->user->parent->increment('wallet', $option->commission_parent);
                 }
+
+                $commissions = Commission::where('payment_token', $sale->uuid)->whereNull('confirmed_at')
+                                ->update([
+                                    'is_paid'      => true,
+                                    'confirmed_at' => now(),
+                                ]);
 
                 $sale->payment_status   = 'PAID';
                 $sale->payment_date     = now();
