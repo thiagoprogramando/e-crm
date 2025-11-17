@@ -32,13 +32,26 @@ class Commission extends Model {
     }
 
     public function statusLabel() {
+        
+        $createdAt = $this->created_at instanceof \Carbon\Carbon
+            ? $this->created_at
+            : \Carbon\Carbon::parse($this->created_at);
 
-        $created    = $this->created_at?->format('d/m/Y');
-        $confirmed  = $this->confirmed_at?->format('d/m/Y');
+        $created = $createdAt->format('d/m/Y');
+
+        $confirmedAt = null;
+
+        if (!empty($this->confirmed_at)) {
+            $confirmedAt = $this->confirmed_at instanceof \Carbon\Carbon
+                ? $this->confirmed_at
+                : \Carbon\Carbon::parse($this->confirmed_at);
+
+            $confirmedAt = $confirmedAt->format('d/m/Y');
+        }
 
         if (!$this->is_paid) {
             return '
-                <span class="badge bg-warning me-1">
+                <span class="badge bg-info me-1">
                     Solicitado em ' . $created . '
                 </span>
             ';
@@ -49,7 +62,7 @@ class Commission extends Model {
                 Solicitado em ' . $created . '
             </span>
             <span class="badge bg-success me-1">
-                Confirmado em ' . ($confirmed ?? $created) . '
+                Confirmado em ' . ($confirmedAt ?? $created) . '
             </span>
         ';
     }
