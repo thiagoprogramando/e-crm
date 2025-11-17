@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Finance;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Gateway\AssasController;
 use App\Models\Withdraw;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -10,6 +11,49 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 class WithdrawalController extends Controller {
+
+    public function index(Request $request) {
+
+        $baseQuery = Withdraw::query();
+
+        if ($request->filled('uuid')) {
+            $baseQuery->where('uuid', $request->uuid);
+        }
+        if ($request->filled('payment_key')) {
+            $baseQuery->where('payment_key', $request->payment_key);
+        }
+        if ($request->filled('user_id')) {
+            $baseQuery->where('user_id', $request->user_id);
+        }
+
+        $pendingsQuery = (clone $baseQuery)->where('is_paid', false);
+        if ($request->filled('date_start')) {
+            $pendingsQuery->whereDate('created_at', '>=', $request->date_start);
+        }
+        if ($request->filled('date_end')) {
+            $pendingsQuery->whereDate('created_at', '<=', $request->date_end);
+        }
+
+        $approvedsQuery = (clone $baseQuery)->where('is_paid', true);
+        if ($request->filled('date_start')) {
+            $approvedsQuery->where(function ($q) use ($request) {
+                $q->whereDate('confirmed_at', '>=', $request->date_start)
+                ->orWhereDate('created_at', '>=', $request->date_start);
+            });
+        }
+
+        if ($request->filled('date_end')) {
+            $approvedsQuery->where(function ($q) use ($request) {
+                $q->whereDate('confirmed_at', '<=', $request->date_end)
+                ->orWhereDate('created_at', '<=', $request->date_end);
+            });
+        }
+
+        return view('app.Finance.Withdraw.index', [
+            'pendings'  => $pendingsQuery->orderBy('created_at', 'desc')->paginate(60),
+            'approveds' => $approvedsQuery->orderBy('created_at', 'desc')->paginate(30),
+        ]);
+    }
     
     public function store(Request $request) {
 
@@ -37,10 +81,88 @@ class WithdrawalController extends Controller {
         return redirect()->back()->with('error', 'Falha ao solicitar saque, verifique os dados e tente novamente!');
     }
 
+    public function sendWithdrawal(Request $request) {
+
+        if (!Hash::check($request->password, Auth::user()->password)) {
+            return redirect()->back()->with('infor', 'Senha incorreta!');
+        }
+
+        if (empty($request->requests) || !is_array($request->requests)) {
+            return redirect()->back()->with('infor', 'Selecione ao menos uma solicitação!');
+        }
+
+        $uuids = $request->requests;
+        if (in_array('ALL', $uuids)) {
+            $withdrawals = Withdraw::where('is_paid', false)->get();
+        } else {
+            $withdrawals = Withdraw::whereIn('uuid', $uuids)->where('is_paid', false)->get();
+        }
+
+        if ($withdrawals->isEmpty()) {
+            return redirect()->back()->with('infor', 'Nenhuma solicitação encontrada para processar.');
+        }
+
+        $results = [
+            'success' => [],
+            'errors'  => []
+        ];
+
+        switch (env('APP_BANK')) {
+            case 'ASAAS':
+                $gatewayController = new AssasController();
+                foreach ($withdrawals as $withdrawal) {
+                    $response = $gatewayController->sendWithdrawal($withdrawal);
+                    if ($response['status'] === 'DONE' || $response['status'] === 'BANK_PROCESSING' || $response['status'] === 'PENDING') {
+
+                        $withdrawal->is_paid = true;
+                        $withdrawal->payment_token  = $response['payment_token'] ?? null;
+                        $withdrawal->payment_url    = $response['payment_url'] ?? null;
+                        if ($response['success'] === 'DONE') {
+                            $withdrawal->confirmed_at = now();
+                        }
+                        $withdrawal->save();
+
+                        $results['success'][] = $withdrawal->uuid;
+                    } else {
+                        $withdrawal->payment_log = $response['error'] ?? 'Erro desconhecido no processamento!';
+                        $withdrawal->save();
+                        $results['errors'][] = [
+                            'uuid' => $withdrawal->uuid,
+                            'msg'  => $response['message'] ?? 'Erro desconhecido no processamento.'
+                        ];
+                    }
+                }
+                break;
+            case 'CORA':
+                
+                break;
+            default:
+                return redirect()->back()->with('infor', 'Conexão bancária indisponível no momento, tente novamente mais tarde!');
+                break;
+        }
+
+        $successCount = count($results['success']);
+        $errorCount   = count($results['errors']);
+        $msg          = "{$successCount} solicitação" . ($successCount != 1 ? 'es' : '') . " processada" . ($successCount != 1 ? 's' : '') . " com sucesso!";
+
+        if ($errorCount > 0) {
+            $msg .= " {$errorCount} falharam.";
+        }
+
+        return redirect()->back()->with([
+            'infor' => $msg,
+            'withdraw_results' => $results
+        ]);
+    }
+
     public function destroy(Request $request, $uuid) {
 
         if (!Hash::check($request->password, Auth::user()->password)) {
             return redirect()->back()->with('infor', 'Senha incorreta!');
+        }
+
+        if ( Auth::user()->type !== 'admin' ) {
+            return redirect()->back()->with('infor', 'Para cancelar ou alterar uma solicitação, fale com o suporte!');
         }
 
         $withdraw = Withdraw::where('uuid', $uuid)->where('user_id', Auth::id())->where('is_paid', false)->first();

@@ -151,10 +151,10 @@
                                         </div> 
                                     </div>
                                 </div>
-                                <form action="{{ route('deleted-template', ['uuid' => $template->uuid]) }}" method="POST" class="add-btn delete">
+                                <form action="{{ route('deleted-template', ['uuid' => $template->uuid]) }}" method="POST" class="btn-group delete">
                                     @csrf
-                                    <a href="{{ route('template', ['uuid' => $template->uuid]) }}" class="btn btn-success text-white btn-sm" title="Editar Template"><i class="ri-menu-search-line"></i></a>
-                                    <button type="submit" class="btn btn-danger btn-sm" title="Excluir Template"><i class="ri-delete-bin-line"></i></button>
+                                    <a href="{{ route('template', ['uuid' => $template->uuid]) }}" class="btn btn-outline-dark btn-sm" title="Editar Template"><i class="ri-menu-search-line"></i></a>
+                                    <button type="submit" class="btn btn-outline-dark btn-sm" title="Excluir Template"><i class="ri-delete-bin-line"></i></button>
                                 </form>
                             </div>
                         </div>

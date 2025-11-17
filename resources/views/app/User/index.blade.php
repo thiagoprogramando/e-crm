@@ -183,10 +183,10 @@
                                         </div>
                                     </div>
                                 </div>
-                                <form action="{{ route('deleted-user', ['uuid' => $user->uuid]) }}" method="POST" class="add-btn delete">
+                                <form action="{{ route('deleted-user', ['uuid' => $user->uuid]) }}" method="POST" class="btn-group delete">
                                     @csrf
-                                    <button type="button" class="btn btn-success text-white btn-sm"  data-bs-toggle="modal" data-bs-target="#updatedModal{{ $user->uuid }}" title="Editar Usuário"><i class="ri-menu-search-line"></i></button>
-                                    <button type="submit" class="btn btn-danger btn-sm" title="Excluir Usuário"><i class="ri-delete-bin-line"></i></button>
+                                    <button type="button" class="btn btn-outline-dark btn-sm"  data-bs-toggle="modal" data-bs-target="#updatedModal{{ $user->uuid }}" title="Editar Usuário"><i class="ri-menu-search-line"></i></button>
+                                    <button type="submit" class="btn btn-outline-dark btn-sm" title="Excluir Usuário"><i class="ri-delete-bin-line"></i></button>
                                 </form>
                             </div>
                         </div>

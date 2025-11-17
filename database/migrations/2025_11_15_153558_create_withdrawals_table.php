@@ -16,6 +16,7 @@ return new class extends Migration {
             $table->string('payment_key');
             $table->string('payment_token')->nullable();
             $table->string('payment_url')->nullable();
+            $table->text('payment_log')->nullable();
             $table->decimal('value', 10, 2)->default(0);
             $table->string('description')->nullable();
             $table->date('confirmed_at')->nullable();

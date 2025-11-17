@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Invoice;
 use App\Models\Lists;
 use App\Models\Sale;
+use App\Models\Withdraw;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -167,13 +168,51 @@ class AssasController extends Controller {
         }
     }
 
+    public function sendWithdrawal(Withdraw $withdrawal) {
+
+        $client = new Client();
+        try {
+            $response = $client->request('POST', env('API_BANK_URL').'v3/transfers', [
+                'headers' => [
+                    'accept'       => 'application/json',
+                    'Content-Type' => 'application/json',
+                    'access_token' => env('API_BANK_TOKEN'),
+                    'User-Agent'   => env('APP_NAME')
+                ],
+                'json' => [
+                    'value'             => $withdrawal->value,
+                    'operationType'     => 'PIX',
+                    'pixAddressKey'     => $withdrawal->payment_key,
+                    'pixAddressKeyType' => strlen($withdrawal->key) == 11 ? 'CPF' : 'CNPJ',
+                    'description'       => 'Saque '.env('APP_NAME'),
+                ],
+                'verify'  => false,
+            ]);
+
+            $decoded = json_decode($response->getBody()->getContents(), true);
+
+            return [
+                'success' => $decoded['status'] === 'PENDING',
+                'status'  => $decoded['status'],
+                'payment_token' => $decoded['id'] ?? null,
+                'payment_url'   => $decoded['transactionReceiptUrl'] ?? null,
+            ];
+
+        } catch (RequestException $e) {
+            $decoded = json_decode($e->getResponse()->getBody()->getContents(), true);
+            return [
+                'success' => false,
+                'status'  => 'FAILED',
+                'error'   => $decoded['errors'][0]['description'] ?? 'Erro desconhecido'
+            ];
+        }
+    }
+
+
     public function webhook(Request $request) {
 
         $jsonData   = $request->json()->all();
         $token      = $jsonData['payment']['id'] ?? null;
-        if (!$token) {
-            return response()->json(['message' => 'Token de pagamento ausente!'], 400);
-        }
 
         if ($jsonData['event'] === 'PAYMENT_CONFIRMED' || $jsonData['event'] === 'PAYMENT_RECEIVED') {
 
@@ -291,6 +330,43 @@ class AssasController extends Controller {
 
             return response()->json(['message' => 'Nenhum registro atualizado!'], 404);
         };
+
+        $token = $jsonData['transfer']['id'] ?? null;
+        if ($jsonData['event'] === 'TRANSFER_DONE' || $jsonData['event'] === 'TRANSFER_CREATED') {
+
+            $withdrawal = Withdraw::where('payment_token', $token)->whereNull('confirmed_at')->first();
+            if ($withdrawal) {
+
+                $withdrawal->is_paid      = true;
+                $withdrawal->confirmed_at = now();
+                $withdrawal->payment_url  = $jsonData['transfer']['transactionReceiptUrl'] ?? null;
+                if ($withdrawal->save()) {
+                    return response()->json(['message' => 'Saque marcado como pago!'], 200);
+                } else {
+                    return response()->json(['message' => 'Falha ao tentar atualizar saque!'], 400);
+                }
+            }
+
+            return response()->json(['message' => 'Nenhum Saque encontrado para atualizar!'], 404);
+        }
+
+        if ($jsonData['event'] === 'TRANSFER_FAILED' || $jsonData['event'] === 'TRANSFER_CANCELED') {
+
+            $withdrawal = Withdraw::where('payment_token', $token)->first();
+            if ($withdrawal) {
+
+                $withdrawal->is_paid        = false;
+                $withdrawal->confirmed_at   = null;
+                $withdrawal->payment_log    = 'Transferência falhou ou foi cancelada pelo banco!';
+                if ($withdrawal->save()) {
+                    return response()->json(['message' => 'Saque atualizado!'], 200);
+                } else {
+                    return response()->json(['message' => 'Falha ao tentar atualizar saque!'], 400);
+                }
+            }
+
+            return response()->json(['message' => 'Nenhum Saque encontrado para atualizar!'], 404);
+        }
         
         return response()->json(['message' => 'Nenhum Evento disponível!'], 200);
     }

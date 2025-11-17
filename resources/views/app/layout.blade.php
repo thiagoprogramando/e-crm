@@ -18,6 +18,8 @@
         <link rel="stylesheet" href="{{ asset('assets/vendor/fonts/flag-icons.css') }}"/>
 
         <link rel="stylesheet" href="{{ asset('assets/vendor/libs/node-waves/node-waves.css') }}"/>
+        <link rel="stylesheet" href="{{ asset('assets/vendor/css/rtl/core.css') }}" class="template-customizer-core-css"/>
+        <link rel="stylesheet" href="{{ asset('assets/vendor/css/rtl/theme-default.css') }}" class="template-customizer-theme-css"/>
         <link rel="stylesheet" href="{{ asset('assets/css/demo.css') }}" />
 
         <link rel="stylesheet" href="{{ asset('assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css') }}"/>
@@ -26,14 +28,12 @@
         <link rel="stylesheet" href="{{ asset('assets/vendor/libs/tagify/tagify.css') }}"/>
         <link rel="stylesheet" href="{{ asset('assets/vendor/libs/bootstrap-select/bootstrap-select.css') }}"/>
         <link rel="stylesheet" href="{{ asset('assets/vendor/libs/typeahead-js/typeahead.css') }}"/>
+        
         <link rel="stylesheet" href="{{ asset('assets/vendor/libs/swiper/swiper.css') }}"/>
         <link rel="stylesheet" href="{{ asset('assets/vendor/css/pages/cards-statistics.css') }}"/>
         <link rel="stylesheet" href="{{ asset('assets/vendor/css/pages/cards-analytics.css') }}"/>
         <link rel="stylesheet" href="{{ asset('assets/vendor/libs/dropzone/dropzone.css') }}"/>
         <link rel="stylesheet" href="{{ asset('assets/vendor/libs/shepherd/shepherd.css') }}"/>
-
-        <link rel="stylesheet" href="{{ asset('assets/vendor/css/rtl/core.css') }}" class="template-customizer-core-css"/>
-        <link rel="stylesheet" href="{{ asset('assets/vendor/css/rtl/theme-default.css') }}" class="template-customizer-theme-css"/>
 
         <script src="{{ asset('assets/vendor/js/helpers.js') }}"></script>
         <script src="{{ asset('assets/js/config.js') }}"></script>
@@ -317,6 +317,11 @@
                                                     </a>
                                                 </li>
                                                 <li class="menu-item">
+                                                    <a href="{{ route('withdrawals') }}" class="menu-link">
+                                                        <div data-i18n="Saques">Saques</div>
+                                                    </a>
+                                                </li>
+                                                <li class="menu-item">
                                                     <a href="{{ route('users') }}" class="menu-link">
                                                         <div data-i18n="Usuários">Usuários</div>
                                                     </a>
@@ -447,6 +452,7 @@
         <div class="layout-overlay layout-menu-toggle"></div>
         <div class="drag-target"></div>
 
+        <script src="{{ asset('assets/vendor/libs/jquery/jquery.js') }}"></script>
         <script src="{{ asset('assets/vendor/libs/popper/popper.js') }}"></script>
         <script src="{{ asset('assets/vendor/js/bootstrap.js') }}"></script>
         <script src="{{ asset('assets/vendor/libs/node-waves/node-waves.js') }}"></script>
@@ -467,7 +473,6 @@
         <script src="{{ asset('assets/js/forms-selects.js') }}"></script> 
         <script src="{{ asset('assets/js/forms-tagify.js') }}"></script>
         <script src="{{ asset('assets/js/forms-typeahead.js') }}"></script>
-        
         <script src="{{ asset('assets/js/ui-popover.js') }}"></script>
         
         <script>
@@ -476,7 +481,7 @@
                     title: 'Erro!',
                     text: '{{ session('error') }}',
                     icon: 'error',
-                    timer: 2000
+                    timer: 5000
                 })
             @endif
 
@@ -485,7 +490,7 @@
                     title: 'Atenção!',
                     text: '{{ session('infor') }}',
                     icon: 'info',
-                    timer: 2000
+                    timer: 5000
                 })
             @endif
             
@@ -494,7 +499,7 @@
                     title: 'Sucesso!',
                     text: '{{ session('success') }}',
                     icon: 'success',
-                    timer: 2000
+                    timer: 5000
                 })
             @endif
 
