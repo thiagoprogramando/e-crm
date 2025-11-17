@@ -222,7 +222,7 @@ class AssasController extends Controller {
                 ->first();
             if ($sale) {
 
-                $list = Lists::where('active', true)->first() ?? Lists::latest()->first();
+                $list = Lists::where('status', 'active')->first() ?? Lists::latest()->first();
                 if (!$list) {
                     return response()->json(['message' => 'Nenhuma lista ativa ou cadastrada encontrada!'], 400);
                 }
