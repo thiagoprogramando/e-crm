@@ -59,7 +59,7 @@ class ProductController extends Controller {
         $product->cashback_percentage   = $this->formatPercent($request->cashback_percentage);
         $product->status                = $request->status;
         $product->type                  = $request->type;
-        $product->time                  = $request->time;
+        $product->time                  = $request->time ?? 'lifetime';
         $product->access                = $request->access;
         if ($product->save()) {
             return redirect()->back()->with('success', 'Produto cadastrado com sucesso!');

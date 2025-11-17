@@ -24,6 +24,7 @@ class Invoice extends Model {
         'payment_status',
         'payment_token',
         'payment_url',
+        'payment_type',
     ];
 
     public function user() {

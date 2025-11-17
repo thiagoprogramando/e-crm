@@ -7,10 +7,7 @@ $(document).on('change', '#product_id', function () {
         return;
     }
 
-    options = JSON.parse(options);
-
-    console.log("OPTIONS:", options);
-
+    options  = JSON.parse(options);
     let html = `<div class="row g-2">`;
 
     options.forEach(option => {

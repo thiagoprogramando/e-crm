@@ -12,7 +12,7 @@ return new class extends Migration {
             $table->uuid('uuid')->unique();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('product_id')->nullable()->constrained('products')->nullOnDelete();
-            $table->foreignId('payment_option_id')->constrained('payment_options')->nullOnDelete();
+            $table->foreignId('payment_option_id')->nullable()->constrained('payment_options')->nullOnDelete();
             $table->foreignId('list_id')->nullable()->constrained('lists')->nullOnDelete();
             $table->foreignId('coupon_id')->nullable()->constrained('coupons')->nullOnDelete();
             $table->string('customer_name');
@@ -23,7 +23,7 @@ return new class extends Migration {
             $table->decimal('discount', 10, 2)->default(0);
             $table->string('payment_token')->nullable();
             $table->string('payment_url')->nullable();
-            $table->date('payment_due_date')->default(now()->addDays(2));
+            $table->date('payment_due_date')->nullable();
             $table->date('payment_date')->nullable();
             $table->enum('payment_status', ['PENDING', 'PAID', 'CANCELED', 'REFUNDED', 'FAILED'])->default('PENDING');
             $table->json('settings')->nullable();

@@ -149,6 +149,17 @@
                 </form>
             </div>
         </div>
+
+        <div class="card bg-warning text-white mb-3 p-5">
+            <figure class="mb-0">
+                <blockquote class="blockquote">
+                    <a onclick="onClip('{{ route('register', ['parent' => Auth::user()->uuid]) }}')">{{ route('register', ['parent' => Auth::user()->uuid]) }}</a>
+                </blockquote>
+                <figcaption class="blockquote-footer mb-0">
+                    Link de indicação <cite title="para Auto Cadastro">para Auto Cadastro</cite>
+                </figcaption>
+            </figure>
+        </div>
         
         <div class="card demo-inline-spacing">
             <div class="list-group p-0 m-0">
@@ -172,10 +183,10 @@
                                         </div>
                                     </div>
                                 </div>
-                                <form action="{{ route('deleted-user', ['uuid' => $user->uuid]) }}" method="POST" class="add-btn delete">
+                                <form action="{{ route('deleted-user', ['uuid' => $user->uuid]) }}" method="POST" class="btn-group delete">
                                     @csrf
-                                    <button type="button" class="btn btn-success text-white btn-sm"  data-bs-toggle="modal" data-bs-target="#updatedModal{{ $user->uuid }}" title="Editar Usuário"><i class="ri-menu-search-line"></i></button>
-                                    <button type="submit" class="btn btn-danger btn-sm" title="Excluir Usuário"><i class="ri-delete-bin-line"></i></button>
+                                    <button type="button" class="btn btn-outline-dark btn-sm"  data-bs-toggle="modal" data-bs-target="#updatedModal{{ $user->uuid }}" title="Editar Usuário"><i class="ri-menu-search-line"></i></button>
+                                    <button type="submit" class="btn btn-outline-dark btn-sm" title="Excluir Usuário"><i class="ri-delete-bin-line"></i></button>
                                 </form>
                             </div>
                         </div>
@@ -191,6 +202,12 @@
                                 </div>
                                 <div class="modal-body">
                                     <div class="row g-2">
+                                        <div class="col-12 col-sm-12 col-md-12 col-lg-12">
+                                            <div class="form-floating form-floating-outline mb-2">
+                                                <input type="text" class="form-control" placeholder="Ex: João da Silva" value="{{ $user->parent->name ?? '---' }}" disabled/>
+                                                <label>Patrocinador</label>
+                                            </div>
+                                        </div>
                                         <div class="col-12 col-sm-12 col-md-8 col-lg-8">
                                             <div class="form-floating form-floating-outline mb-2">
                                                 <input type="text" class="form-control" name="name" placeholder="Ex: João da Silva" value="{{ $user->name }}"/>

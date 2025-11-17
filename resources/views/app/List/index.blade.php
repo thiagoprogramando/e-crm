@@ -164,12 +164,12 @@
                                 </div>
                             </div>
                         </p>
-                        <form action="{{ route('deleted-list', ['uuid' => $list->uuid]) }}" method="POST" class="add-btn delete">
+                        <form action="{{ route('deleted-list', ['uuid' => $list->uuid]) }}" method="POST" class="btn-group delete">
                             @csrf
-                            <button type="button" class="btn btn-success text-white btn-sm"  data-bs-toggle="modal" data-bs-target="#exportModal{{ $list->uuid }}" title="Exportar Lista"><i class="ri-file-excel-2-line"></i></button>
+                            <button type="button" class="btn btn-outline-success btn-sm"  data-bs-toggle="modal" data-bs-target="#exportModal{{ $list->uuid }}" title="Exportar Lista"><i class="ri-file-excel-2-line"></i></button>
                             @if (Auth::user()->type === 'admin')
-                                <button type="button" class="btn btn-info text-white btn-sm"  data-bs-toggle="modal" data-bs-target="#updatedModal{{ $list->uuid }}" title="Editar Lista"><i class="ri-menu-search-line"></i></button>
-                                <button type="submit" class="btn btn-danger btn-sm" title="Excluir Lista"><i class="ri-delete-bin-line"></i></button>
+                                <button type="button" class="btn btn-outline-dark btn-sm"  data-bs-toggle="modal" data-bs-target="#updatedModal{{ $list->uuid }}" title="Editar Lista"><i class="ri-menu-search-line"></i></button>
+                                <button type="submit" class="btn btn-outline-dark btn-sm" title="Excluir Lista"><i class="ri-delete-bin-line"></i></button>
                             @endif
                         </form>
                     </div>

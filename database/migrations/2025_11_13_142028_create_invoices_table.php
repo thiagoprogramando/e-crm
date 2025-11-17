@@ -21,6 +21,7 @@ return new class extends Migration {
             $table->enum('payment_status', ['PENDING', 'PAID', 'OVERDUE'])->default('PENDING');
             $table->string('payment_token')->nullable();
             $table->string('payment_url')->nullable();
+            $table->enum('payment_type', ['DEFAULT', 'DEPOSIT', 'DEBIT', 'CREDIT'])->default('DEFAULT');
             $table->timestamps();
             $table->softDeletes();
         });
