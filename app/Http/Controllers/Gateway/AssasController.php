@@ -343,12 +343,12 @@ class AssasController extends Controller {
             $sale = Sale::where('payment_token', $token)->first();
             if ($sale) {
 
-                $sale->payment_status = 'PENDING';
+                $sale->payment_status = 'REFUNDED';
                 $sale->payment_date = null;
                 if ($sale->save()) {
 
                     $commissionTotal    = Commission::where('payment_token', $sale->uuid)->whereNotNull('confirmed_at')->sum('value');
-                    $commissions        = Commission::where('payment_token', $sale->uuid)->whereNotNull('confirmed_at') // <- estava errado usar whereNull()
+                    $commissions        = Commission::where('payment_token', $sale->uuid)->whereNotNull('confirmed_at')
                                             ->update([
                                                 'is_paid'      => false,
                                                 'confirmed_at' => null,
@@ -358,9 +358,9 @@ class AssasController extends Controller {
                         $sale->user->decrement('wallet', $commissionTotal);
                     }
     
-                    return response()->json(['message' => 'Venda restaurada via Banco!'], 200);
+                    return response()->json(['message' => 'Venda estornada via Banco!'], 200);
                 } else {
-                    return response()->json(['message' => 'Falha ao tentar restaurar a Venda!'], 400);
+                    return response()->json(['message' => 'Falha ao tentar estornar a Venda!'], 400);
                 }
             }
 
