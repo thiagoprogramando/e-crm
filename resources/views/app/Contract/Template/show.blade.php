@@ -112,6 +112,7 @@
                 { indent: '-1' },
                 { indent: '+1' }
                 ],
+                [{ 'align': [] }],
                 [{ direction: 'rtl' }],
                 ['link', 'image', 'video', 'formula'],
                 ['clean']
