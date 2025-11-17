@@ -270,7 +270,7 @@ class AssasController extends Controller {
                 }
             }
 
-            return response()->json(['message' => 'Nenhuma venda elegível encontrada para atualização.'], 404);
+            return response()->json(['message' => 'Nenhuma venda elegível encontrada para atualização.'], 200);
         };
 
         if ($jsonData['event'] === 'PAYMENT_OVERDUE' || $jsonData['event'] === 'PAYMENT_DELETED') {
@@ -299,7 +299,7 @@ class AssasController extends Controller {
                 }
             }
 
-            return response()->json(['message' => 'Nenhum registro atualizado!'], 404);
+            return response()->json(['message' => 'Nenhum registro atualizado!'], 200);
         };
 
         if ($jsonData['event'] === 'PAYMENT_RESTORED') {
@@ -328,7 +328,7 @@ class AssasController extends Controller {
                 }
             }
 
-            return response()->json(['message' => 'Nenhum registro atualizado!'], 404);
+            return response()->json(['message' => 'Nenhum registro atualizado!'], 200);
         };
 
         $token = $jsonData['transfer']['id'] ?? null;
@@ -347,7 +347,7 @@ class AssasController extends Controller {
                 }
             }
 
-            return response()->json(['message' => 'Nenhum Saque encontrado para atualizar!'], 404);
+            return response()->json(['message' => 'Nenhum Saque encontrado para atualizar!'], 200);
         }
 
         if ($jsonData['event'] === 'TRANSFER_FAILED' || $jsonData['event'] === 'TRANSFER_CANCELED') {
@@ -365,7 +365,7 @@ class AssasController extends Controller {
                 }
             }
 
-            return response()->json(['message' => 'Nenhum Saque encontrado para atualizar!'], 404);
+            return response()->json(['message' => 'Nenhum Saque encontrado para atualizar!'], 200);
         }
         
         return response()->json(['message' => 'Nenhum Evento disponível!'], 200);
