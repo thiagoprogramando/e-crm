@@ -114,11 +114,6 @@ class CoraController extends Controller {
 
     public function webhook(Request $request) {
 
-        Log::info('Cora Webhook Recebido:', [
-            'headers' => $request->headers->all(),
-            'body'    => $request->all(),
-        ]);
-
         $headers = $request->headers->all();
         if (empty($headers)) {
             return response()->json(['message' => 'Headers vazios'], 400);
@@ -127,7 +122,12 @@ class CoraController extends Controller {
         $eventType  = $request->header('webhook-event-type');
         $token      = $request->header('webhook-resource-id');
 
-        if ($eventType === 'invoice.PAID') {
+        Log::info('Cora Webhook Recebido:', [
+            'eventType' => $eventType,
+            'token'     => $token,
+        ]);
+
+        if ($eventType == 'invoice.PAID') {
 
             $sale = Sale::with(['user.parent', 'product', 'paymentOption'])->where('payment_token', $token)
                             ->whereIn('payment_status', ['PENDING', 'CANCELED', 'REFUNDED', 'FAILED'])->first();
@@ -189,7 +189,7 @@ class CoraController extends Controller {
             return response()->json(['message' => 'Nenhuma venda/fatura elegível encontrada.'], 200);
         }
 
-        if ($eventType === 'invoice.EXPIRED' || $eventType === 'invoice.DRAFTED') {
+        if ($eventType == 'invoice.EXPIRED' || $eventType == 'invoice.DRAFTED') {
 
             $sale = Sale::where('payment_token', $token)->whereIn('payment_status', ['PENDING', 'CANCELED', 'REFUNDED', 'FAILED'])->first();
             if ($sale) {
@@ -218,7 +218,7 @@ class CoraController extends Controller {
             return response()->json(['message' => 'Nenhum registro atualizado.'], 200);
         }
 
-        if ($eventType === 'invoice.RESTORED' || ($eventType === 'invoice.UPDATED')) {
+        if ($eventType == 'invoice.RESTORED' || ($eventType == 'invoice.UPDATED')) {
 
             $sale = Sale::where('payment_token', $token)->first();
             if ($sale) {
