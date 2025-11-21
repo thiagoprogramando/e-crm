@@ -71,7 +71,7 @@
                 <p>Recebemos sua solicitação para redefinir a senha da conta <b><i>{{ $data['toEmail'] }}</i></b></p>
                 <p>Utilize o botão abaixo para prosseguir com a redefinição:</p>
                 <div class="email-button">
-                    <a href="{{ env('APP_URL') }}forgout/{{ $data['token'] }}" style="font-size: 20px; background-color: #BC9A55;">Recuperar Minha Senha</a>
+                    <a href="{{ env('APP_URL') }}forgout/{{ $data['token'] }}" style="font-size: 20px; background-color: #0B181D;">Recuperar Minha Senha</a>
                 </div>
                 <div class="text-center">
                     <p>Se você não solicitou esta alteração, ignore este e-mail.</p>

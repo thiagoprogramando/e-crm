@@ -189,7 +189,7 @@ class CoraController extends Controller {
             return response()->json(['message' => 'Nenhuma venda/fatura elegível encontrada.'], 200);
         }
 
-        if ($eventType == 'invoice.EXPIRED' || $eventType == 'invoice.DRAFTED') {
+        if ($eventType == 'invoice.OVERDUE' || $eventType == 'invoice.CANCELED') {
 
             $sale = Sale::where('payment_token', $token)->whereIn('payment_status', ['PENDING', 'CANCELED', 'REFUNDED', 'FAILED'])->first();
             if ($sale) {

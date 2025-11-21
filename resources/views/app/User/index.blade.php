@@ -155,7 +155,7 @@
                 <blockquote class="blockquote">
                     <a onclick="onClip('{{ route('register', ['parent' => Auth::user()->uuid]) }}')">{{ route('register', ['parent' => Auth::user()->uuid]) }}</a>
                 </blockquote>
-                <figcaption class="blockquote-footer mb-0">
+                <figcaption class="blockquote-footer mb-0 text-white">
                     Link de indicação <cite title="para Auto Cadastro">para Auto Cadastro</cite>
                 </figcaption>
             </figure>

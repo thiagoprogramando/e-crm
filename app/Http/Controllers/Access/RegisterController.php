@@ -52,6 +52,7 @@ class RegisterController extends Controller {
         $user->email         = $request->email;
         $user->cpfcnpj       = preg_replace('/\D/', '', $request->cpfcnpj);
         $user->password      = bcrypt($request->password);
+        $user->status        = 'active';
         if ($user->save()) {
             if (Auth::attempt(['email' => $user->email, 'password' => $request->password])) {
                 return redirect()->route('app');
