@@ -129,6 +129,11 @@ class CoraController extends Controller {
 
         if ($eventType == 'invoice.PAID') {
 
+            Log::info('Cora Webhook Event:', [
+                'eventType' => 'Iniciando processamento de invoice.PAID',
+                'token'     => $token,
+            ]);
+
             $sale = Sale::with(['user.parent', 'product', 'paymentOption'])->where('payment_token', $token)
                             ->whereIn('payment_status', ['PENDING', 'CANCELED', 'REFUNDED', 'FAILED'])->first();
             if ($sale) {
@@ -189,7 +194,12 @@ class CoraController extends Controller {
             return response()->json(['message' => 'Nenhuma venda/fatura elegível encontrada.'], 200);
         }
 
-        if ($eventType == 'invoice.EXPIRED' || $eventType == 'invoice.DRAFTED') {
+        if ($eventType == 'invoice.OVERDUE' || $eventType == 'invoice.CANCELED') {
+
+            Log::info('Cora Webhook Event:', [
+                'eventType' => 'Iniciando processamento de invoice.CANCELED ou invoice.OVERDUE',
+                'token'     => $token,
+            ]);
 
             $sale = Sale::where('payment_token', $token)->whereIn('payment_status', ['PENDING', 'CANCELED', 'REFUNDED', 'FAILED'])->first();
             if ($sale) {
@@ -219,6 +229,11 @@ class CoraController extends Controller {
         }
 
         if ($eventType == 'invoice.RESTORED' || ($eventType == 'invoice.UPDATED')) {
+
+            Log::info('Cora Webhook Event:', [
+                'eventType' => 'Iniciando processamento de invoice.RESTORED ou invoice.UPDATED',
+                'token'     => $token,
+            ]);
 
             $sale = Sale::where('payment_token', $token)->first();
             if ($sale) {
