@@ -21,6 +21,7 @@ return new class extends Migration {
             $table->string('address')->nullable();
             $table->decimal('wallet', 10, 2)->default(0);
             $table->decimal('wallet_cash', 10, 2)->default(0);
+            $table->decimal('addition', 10, 2)->default(0);
             $table->enum('status', ['active', 'inactive'])->default('inactive');
             $table->enum('type', ['master', 'admin', 'collaborator', 'user'])->default('user');
             $table->text('bank_api_key')->nullable();

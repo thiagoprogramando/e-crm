@@ -24,8 +24,13 @@ class User extends Authenticatable {
         'phone',
         'address',
         'wallet',
+        'wallet_cash',
+        'addition',
         'status',
         'type',
+        'bank_api_key',
+        'bank_api_wallet',
+        'bank_api_customer',
     ];
 
     public function parent() {

@@ -209,7 +209,6 @@ class AssasController extends Controller {
         }
     }
 
-
     public function webhook(Request $request) {
 
         $jsonData   = $request->json()->all();

@@ -8,6 +8,7 @@ use App\Http\Controllers\Contract\ContractController;
 use App\Http\Controllers\Contract\TemplateController;
 use App\Http\Controllers\Finance\WalletController;
 use App\Http\Controllers\Finance\WithdrawalController;
+use App\Http\Controllers\Gateway\CoraController;
 use App\Http\Controllers\Product\PaymentOptionController;
 use App\Http\Controllers\Product\ProductController;
 use App\Http\Controllers\Product\SubscriptionController;
@@ -38,7 +39,9 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/created-subscription/{uuid}', [SubscriptionController::class, 'store'])->name('created-subscription');
 
     Route::get('/user/{uuid}', [UserController::class, 'show'])->name('user');
-     Route::post('/updated-user/{uuid}', [UserController::class, 'update'])->name('updated-user');
+    Route::post('/updated-user/{uuid}', [UserController::class, 'update'])->name('updated-user');
+
+    Route::get('/deploy', [CoraController::class, 'getToken'])->name('deploy');
 
     Route::middleware(['CheckIsMonthly'])->group(function () {
 

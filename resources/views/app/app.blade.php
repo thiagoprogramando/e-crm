@@ -99,12 +99,16 @@
                                 <tr>
                                     <td class="ps-0 py-4">
                                         <span class="text-white">{{ Str::limit($sale->customer_name, 20) }}</span> <br>
-                                        <small class="text-white ms-1">{{ $sale->cpfcnpjLabel() }}</small>
+                                        <span class="badge bg-dark me-1">
+                                            <small class="text-white ms-1">{{ $sale->cpfcnpjLabel() }}</small>
+                                        </span>
                                     </td>
                                     <td class="ps-0">
                                         <span class="text-white">
                                             {!! !empty($sale->list_id) ? $sale->statusLabel() .'</br> Lista '.$sale->list->title : 'PENDENTE DE PAGAMENTO' !!} <br>
-                                            <a onclick="onClip('{{ $sale->payment_url }}')" title="Acessar Fatura">{{ $sale->payment_url }}</a>
+                                            <span class="badge bg-dark me-1">
+                                                <a onclick="onClip('{{ $sale->payment_url }}')" title="Acessar Fatura">Link de Pagamento</a>
+                                            </span>
                                         </span>
                                     </td>
                                 </tr>

@@ -34,5 +34,8 @@ return [
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
     ],
-
+    'cora' => [
+        'certificate'   => storage_path('app/certs/certificate.pem'),
+        'key'           => storage_path('app/certs/private-key.key'),
+    ],
 ];
