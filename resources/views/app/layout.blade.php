@@ -502,6 +502,32 @@
                 })
             @endif
 
+            @if(session('qrCodeImg') && session('invoiceUrl'))
+                Swal.fire({
+                    title: 'Pague com PIX',
+                    html: `
+                        <div style="text-align:center;">
+                            <img src="{{ session('qrCodeImg') }}" 
+                                style="width:250px;height:250px;border-radius:10px;" />
+                            <br><br>
+                            <div class="d-flex justify-content-center gap-2">
+                                <button id="btn-copy-pix" onClick="onClip('{{ session('qrCode') }}')" class="btn btn-outline-success">
+                                    Copiar Código PIX
+                                </button>
+                                <a id="btn-boleto" href="{{ session('invoiceUrl') }}" target="_blank" class="btn btn-outline-dark">
+                                    Acessar Boleto
+                                </a>
+                            </div>
+                        </div>
+                    `,
+                    width: 420,
+                    showConfirmButton: false,
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    showConfirmButton: false,
+                })
+            @endif
+
             document.addEventListener('DOMContentLoaded', function () {
                 applyMasks(document);
                 document.querySelectorAll('form.delete').forEach(form => {

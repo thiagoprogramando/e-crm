@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Sale;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Gateway\AssasController;
+use App\Http\Controllers\Gateway\CoraController;
+use App\Http\Controllers\Gateway\OfflineController;
 use App\Models\Commission;
 use App\Models\Lists;
 use App\Models\PaymentOption;
@@ -12,6 +14,7 @@ use App\Models\Sale;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class SaleController extends Controller {
     
@@ -108,9 +111,28 @@ class SaleController extends Controller {
                 if ($payment['status'] !== 'success') {
                     return redirect()->back()->with('infor', $customer['message']);
                 }
+
+                $qrCode = false;
                 break;
             case 'CORA':
+                $coraController = new CoraController();
                 
+                $payment = $coraController->createdCharge(Auth::user(), ($option->value + $product->fees_value), $product->title, null, $option->payment_splits);
+                if ($payment['status'] !== 'success') {
+                    return redirect()->back()->with('infor', $payment['message']);
+                }
+
+                $qrCode = true;
+                break;
+            case 'OFFLINE':
+                $offlineController = new OfflineController();
+
+                $payment = $offlineController->createdCharge(Auth::user(), ($option->value + $product->fees_value), $product->title, null, $option->payment_splits);
+                if ($payment['status'] !== 'success') {
+                    return redirect()->back()->with('infor', $payment['message']);
+                }
+
+                $qrCode = false;
                 break;
             default:
                 return redirect()->back()->with('infor', 'Conexão bancária indisponível no momento, tente novamente mais tarde!');
@@ -132,7 +154,19 @@ class SaleController extends Controller {
         $sale->payment_due_date     = now()->addDays(2);
         $sale->payment_status       = 'PENDING';
         if ($sale->save()) {
-            return redirect($payment['invoiceUrl']);
+            
+            if (!$qrCode) {
+                return redirect()->back()->with([
+                    'invoiceUrl'  => $payment['invoiceUrl'],
+                ]);
+            }
+            
+            $qrSvg = QrCode::format('svg')->size(300)->generate($payment['qrCode']);
+            return redirect()->back()->with([
+                'qrCodeImg'   => 'data:image/svg+xml;base64,' . base64_encode($qrSvg),
+                'qrCode'      => $payment['qrCode'],
+                'invoiceUrl'  => $payment['invoiceUrl'],
+            ]);
         }
 
         return redirect()->back()->with('infor', 'Falha ao gerar nova venda, verifique os dados e tente novamente!');

@@ -68,9 +68,9 @@
                             @endforeach
                         </tbody>
                     </table>
-                    <div class="text-center">
-                        {{ $commissions->links() }}
-                    </div>
+                </div>
+                <div class="d-flex justify-content-center mt-2 mb-3">
+                    {{ $commissions->links() }}
                 </div>
             </div>
         </div>

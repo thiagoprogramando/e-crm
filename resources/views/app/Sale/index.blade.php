@@ -31,7 +31,7 @@
                                         </div>
                                         <div class="d-none d-md-flex">
                                             <div class="sale-status me-2 d-flex align-items-center" onclick="onClip('{{ $sale->payment_url }}')">
-                                                <span class="badge bg-info me-1">{{ $sale->payment_url }}</span>
+                                                <span class="badge bg-info me-1">Link de Pagamento</span>
                                             </div>
                                             <div class="sale-status me-2 d-flex align-items-center" onclick="onClip('{{ $sale->customer_cpfcnpj }}')">
                                                 <span class="badge bg-info me-1">{{ $sale->cpfcnpjLabel() }}</span>

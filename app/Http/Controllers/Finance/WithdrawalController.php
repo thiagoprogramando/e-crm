@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Finance;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Gateway\AssasController;
+use App\Http\Controllers\Gateway\CoraController;
 use App\Models\Withdraw;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -134,7 +135,29 @@ class WithdrawalController extends Controller {
                 }
                 break;
             case 'CORA':
-                
+                $gatewayController = new CoraController();
+                foreach ($withdrawals as $withdrawal) {
+                    $response = $gatewayController->sendWithdrawal($withdrawal);
+                    if ($response['status'] === 'DONE' || $response['status'] === 'BANK_PROCESSING' || $response['status'] === 'PENDING') {
+
+                        $withdrawal->is_paid = true;
+                        $withdrawal->payment_token  = $response['payment_token'] ?? null;
+                        $withdrawal->payment_url    = $response['payment_url'] ?? null;
+                        if ($response['success'] === 'DONE') {
+                            $withdrawal->confirmed_at = now();
+                        }
+                        $withdrawal->save();
+
+                        $results['success'][] = $withdrawal->uuid;
+                    } else {
+                        $withdrawal->payment_log = $response['error'] ?? 'Erro desconhecido no processamento!';
+                        $withdrawal->save();
+                        $results['errors'][] = [
+                            'uuid' => $withdrawal->uuid,
+                            'msg'  => $response['message'] ?? 'Erro desconhecido no processamento.'
+                        ];
+                    }
+                }
                 break;
             default:
                 return redirect()->back()->with('infor', 'Conexão bancária indisponível no momento, tente novamente mais tarde!');
