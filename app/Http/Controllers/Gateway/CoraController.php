@@ -246,5 +246,7 @@ class CoraController extends Controller {
 
             return response()->json(['message' => 'Nenhum registro atualizado!'], 200);
         }
+
+        return response()->json(['message' => 'Nenhum evento utilizado!'], 200);
     }
 }
