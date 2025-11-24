@@ -38,8 +38,11 @@ class UserController extends Controller {
             $query->where('type', $request->input('type'));
         }
 
-        if ($request->has('parent_id')) {
-            $query->where('parent_id', $request->input('parent_id'));
+        if (Auth::user()->type !== 'admin') {
+            $query->where('parent_id', Auth::id());
+        } else {
+            $affiliatedIds = Auth::user()->getDescendantIds();
+            $query->whereIn('parent_id', array_merge([Auth::id()], $affiliatedIds));
         }
 
         return view('app.User.index', [
@@ -128,6 +131,9 @@ class UserController extends Controller {
         if (!empty($request->password)) {
             $user->password = bcrypt($request->password);
         }
+        if (!empty($request->addition)) {
+            $user->addition = $this->formatValue($request->addition);
+        }
 
         if (!empty($request->photo)) {
 
@@ -158,5 +164,14 @@ class UserController extends Controller {
         }
 
         return redirect()->back()->with('error', 'Erro ao deletar usuário, tente novamente!');
+    }
+
+    private function formatValue($valor) {
+        
+        $valor = preg_replace('/[^0-9,]/', '', $valor);
+        $valor = str_replace(',', '.', $valor);
+        $valorFloat = floatval($valor);
+    
+        return number_format($valorFloat, 2, '.', '');
     }
 }

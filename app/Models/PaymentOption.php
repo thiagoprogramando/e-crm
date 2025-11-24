@@ -40,4 +40,8 @@ class PaymentOption extends Model {
             default       => '---',
         };
     }
+
+    public function value() {
+        return 'R$ ' . number_format($this->value, 2, ',', '.');
+    }
 }

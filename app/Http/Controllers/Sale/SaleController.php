@@ -98,6 +98,17 @@ class SaleController extends Controller {
             $commission->save();
         }
 
+        if (Auth::user()->addition > 0) {
+            $commission = new Commission();
+            $commission->uuid           = Str::uuid();
+            $commission->user_id        = Auth::user()->parent_id;
+            $commission->product_id     = $product->id;
+            $commission->payment_token  = $uuid;
+            $commission->value          = max(0, Auth::user()->addition);
+            $commission->description    = 'Adicional de Patrocinador para venda Cliente:'. $request->name;
+            $commission->save();
+        }
+
         switch (env('APP_BANK')) {
             case 'ASAAS':
                 $assasController = new AssasController();
@@ -107,7 +118,7 @@ class SaleController extends Controller {
                     return redirect()->back()->with('infor', $customer['message']);
                 }
 
-                $payment = $assasController->createdCharge($customer['id'], $option->payment_method, $option->payment_installments, ($option->value + $product->fees_value), $product->title, now()->addDays(2), $option->payment_splits);
+                $payment = $assasController->createdCharge($customer['id'], $option->payment_method, $option->payment_installments, ($option->value + Auth::user()->addition + $product->fees_value), $product->title, now()->addDays(2), $option->payment_splits);
                 if ($payment['status'] !== 'success') {
                     return redirect()->back()->with('infor', $customer['message']);
                 }
@@ -117,7 +128,7 @@ class SaleController extends Controller {
             case 'CORA':
                 $coraController = new CoraController();
                 
-                $payment = $coraController->createdCharge(Auth::user(), ($option->value + $product->fees_value), $product->title, null, $option->payment_splits);
+                $payment = $coraController->createdCharge(Auth::user(), ($option->value + Auth::user()->addition + $product->fees_value), $product->title, null, $option->payment_splits);
                 if ($payment['status'] !== 'success') {
                     return redirect()->back()->with('infor', $payment['message']);
                 }
@@ -127,7 +138,7 @@ class SaleController extends Controller {
             case 'OFFLINE':
                 $offlineController = new OfflineController();
 
-                $payment = $offlineController->createdCharge(Auth::user(), ($option->value + $product->fees_value), $product->title, null, $option->payment_splits);
+                $payment = $offlineController->createdCharge(Auth::user(), ($option->value + Auth::user()->addition + $product->fees_value), $product->title, null, $option->payment_splits);
                 if ($payment['status'] !== 'success') {
                     return redirect()->back()->with('infor', $payment['message']);
                 }
@@ -148,7 +159,7 @@ class SaleController extends Controller {
         $sale->customer_cpfcnpj     = preg_replace('/\D/', '', $request->cpfcnpj);
         $sale->customer_email       = $request->email;
         $sale->customer_phone       = preg_replace('/\D/', '', $request->phone);
-        $sale->value                = $option->value + $product->fees_value;
+        $sale->value                = ($option->value + Auth::user()->addition + $product->fees_value);
         $sale->payment_token        = $payment['id'];
         $sale->payment_url          = $payment['invoiceUrl'];
         $sale->payment_due_date     = now()->addDays(2);

@@ -75,6 +75,17 @@
     </div>
 
     <div class="col-12 col-sm-12 col-md-7 col-lg-7">
+        <div class="card bg-warning text-white mb-3 p-5">
+            <figure class="mb-0">
+                <blockquote class="blockquote">
+                    <a onclick="onClip('{{ route('register', ['parent' => Auth::user()->uuid]) }}')">{{ route('register', ['parent' => Auth::user()->uuid]) }}</a>
+                </blockquote>
+                <figcaption class="blockquote-footer mb-0 text-white">
+                    Link de indicação <cite title="para Auto Cadastro">para Auto Cadastro</cite>
+                </figcaption>
+            </figure>
+        </div>
+        
         <div class="card bg-warning mb-3">
             <div class="card-body pb-1 pt-0">
                 <div class="mb-6 mt-1">
@@ -137,7 +148,7 @@
                                     <select name="product_id" id="product_id" class="select2 form-select" required>
                                         <option value=" ">Escolha um Produto</option>
                                         @foreach ($products as $product)
-                                            <option value="{{ $product->uuid }}" data-options='@json($product->options)'>{{ $product->title }}</option>
+                                            <option value="{{ $product->uuid }}" data-addition="{{ Auth::user()->addition }}" data-options='@json($product->options)'>{{ $product->title }}</option>
                                         @endforeach
                                     </select>
                                 </div>
