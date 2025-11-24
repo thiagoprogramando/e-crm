@@ -2,16 +2,19 @@
 @section('content')
 
     <div class="col-12 col-sm-12 col-md-12 col-lg-12">
-        <div class="kanban-add-new-board mb-5">
-            <a class="kanban-add-board-btn" for="kanban-add-board-input" data-bs-toggle="modal" data-bs-target="#createdModal">
-                <i class="ri-add-line"></i>
-                <span class="align-middle">Adicionar</span>
-            </a>
-            <label class="kanban-add-board-btn" for="kanban-add-board-input" data-bs-toggle="modal" data-bs-target="#filterModal">
-                <i class="ri-filter-line"></i>
-                <span class="align-middle">Filtrar</span>
-            </label>
-        </div> 
+        @if (Auth::user()->type == 'admin')
+            <div class="kanban-add-new-board mb-5">
+                <a class="kanban-add-board-btn" for="kanban-add-board-input" data-bs-toggle="modal" data-bs-target="#createdModal">
+                    <i class="ri-add-line"></i>
+                    <span class="align-middle">Adicionar</span>
+                </a>
+                <label class="kanban-add-board-btn" for="kanban-add-board-input" data-bs-toggle="modal" data-bs-target="#filterModal">
+                    <i class="ri-filter-line"></i>
+                    <span class="align-middle">Filtrar</span>
+                </label>
+            </div> 
+        @endif
+        
 
         <div class="modal fade" id="createdModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-lg" role="document">
