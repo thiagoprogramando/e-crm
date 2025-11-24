@@ -208,42 +208,31 @@
                                                 <label>Patrocinador</label>
                                             </div>
                                         </div>
-                                        <div class="col-12 col-sm-12 col-md-8 col-lg-8">
+                                        <div class="col-12 col-sm-12 col-md-7 col-lg-7">
                                             <div class="form-floating form-floating-outline mb-2">
                                                 <input type="text" class="form-control" name="name" placeholder="Ex: João da Silva" value="{{ $user->name }}"/>
                                                 <label>Nome</label>
                                             </div>
                                         </div>
-                                        <div class="col-12 col-sm-12 col-md-4 col-lg-4">
+                                        <div class="col-12 col-sm-12 col-md-5 col-lg-5">
                                             <div class="form-floating form-floating-outline mb-2">
                                                 <input type="text" class="form-control cpfcnpj" name="cpfcnpj" oninput="maskCpfCnpj(this)" placeholder="000.000.000-00" value="{{ $user->cpfcnpj }}"/>
                                                 <label for="cpfcnpj">CPF/CNPJ</label>
                                             </div>
                                         </div>
-                                        <div class="col-12 col-sm-12 col-md-6 col-lg-6">
+                                        <div class="col-12 col-sm-12 col-md-7 col-lg-7">
                                             <div class="form-floating form-floating-outline mb-2">
                                                 <input type="text" class="form-control" name="email" placeholder="Ex: joao@example.com" value="{{ $user->email }}"/>
                                                 <label for="email">E-mail</label>
                                             </div>
                                         </div>
-                                        <div class="col-12 col-sm-12 col-md-6 col-lg-6">
+                                        <div class="col-12 col-sm-12 col-md-5 col-lg-5">
                                             <div class="form-floating form-floating-outline mb-2">
                                                 <input type="text" class="form-control phone" name="phone" oninput="maskPhone(this)" placeholder="000.000.000-00" value="{{ $user->phone }}"/>
                                                 <label for="phone">Telefone</label>
                                             </div>
                                         </div>
-                                        <div class="col-12 col-sm-12 col-md-6 col-lg-6">
-                                            <div class="form-floating form-floating-outline mb-2">
-                                                <div class="select2-primary">
-                                                    <select name="status" id="status" class="select2 form-select">
-                                                        <option value="active" @selected($user->status == 'active')>Ativo</option>
-                                                        <option value="inactive" @selected($user->status == 'inactive')>Inativo</option>
-                                                    </select>
-                                                </div>
-                                                <label for="status">Status</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-12 col-sm-12 col-md-6 col-lg-6">
+                                        <div class="col-12 col-sm-12 col-md-7 col-lg-7">
                                             <div class="form-floating form-floating-outline mb-2">
                                                 <div class="select2-primary">
                                                     <select name="type" id="type" class="select2 form-select">
@@ -255,10 +244,27 @@
                                                 <label for="type">Permissões</label>
                                             </div>
                                         </div>
-                                        <div class="col-12 col-sm-12 col-md-12 col-lg-12">
+                                        <div class="col-12 col-sm-12 col-md-5 col-lg-5">
+                                            <div class="form-floating form-floating-outline mb-2">
+                                                <div class="select2-primary">
+                                                    <select name="status" id="status" class="select2 form-select">
+                                                        <option value="active" @selected($user->status == 'active')>Ativo</option>
+                                                        <option value="inactive" @selected($user->status == 'inactive')>Inativo</option>
+                                                    </select>
+                                                </div>
+                                                <label for="status">Status</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 col-sm-12 col-md-7 col-lg-7">
                                             <div class="form-floating form-floating-outline mb-2">
                                                 <input type="text" class="form-control" name="address" placeholder="Ex: Rua das Flores, 123" value="{{ $user->address }}"/>
                                                 <label>Endereço</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 col-sm-12 col-md-5 col-lg-5">
+                                            <div class="form-floating form-floating-outline mb-2">
+                                                <input type="text" class="form-control money" name="addition" placeholder="Ex: 100.00" oninput="maskValue(this)" value="{{ $user->addition }}"/>
+                                                <label>Adicional</label>
                                             </div>
                                         </div>
                                     </div>

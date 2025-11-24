@@ -39,7 +39,10 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/created-subscription/{uuid}', [SubscriptionController::class, 'store'])->name('created-subscription');
 
     Route::get('/user/{uuid}', [UserController::class, 'show'])->name('user');
+    Route::get('/users', [UserController::class, 'index'])->name('users');
     Route::post('/updated-user/{uuid}', [UserController::class, 'update'])->name('updated-user');
+    Route::post('/created-user', [UserController::class, 'store'])->name('created-user');
+    Route::post('/deleted-user/{uuid}', [UserController::class, 'destroy'])->name('deleted-user');
 
     Route::get('/deploy', [CoraController::class, 'getToken'])->name('deploy');
 
@@ -69,10 +72,6 @@ Route::middleware(['auth'])->group(function () {
     });
 
     Route::middleware(['CheckIsAdmin'])->group(function () {
-
-        Route::get('/users', [UserController::class, 'index'])->name('users');
-        Route::post('/created-user', [UserController::class, 'store'])->name('created-user');
-        Route::post('/deleted-user/{uuid}', [UserController::class, 'destroy'])->name('deleted-user');
 
         Route::post('/created-product', [ProductController::class, 'store'])->name('created-product');
         Route::post('/updated-product/{uuid}', [ProductController::class, 'update'])->name('updated-product');

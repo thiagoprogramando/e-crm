@@ -261,6 +261,15 @@
                                         </ul>
                                     </li>
 
+                                    @if (Auth::user()->parent_id == 1)
+                                        <li class="menu-item">
+                                            <a href="{{ route('users') }}" class="menu-link">
+                                                <i class="menu-icon tf-icons ri-group-line"></i>
+                                                <div data-i18n="Afiliados">Afiliados</div>
+                                            </a>
+                                        </li>
+                                    @endif
+
                                     <li class="menu-item">
                                         <a href="" class="menu-link menu-toggle">
                                             <i class="menu-icon tf-icons ri-contract-line"></i>
