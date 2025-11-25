@@ -9,6 +9,7 @@ use App\Http\Controllers\Contract\TemplateController;
 use App\Http\Controllers\Finance\WalletController;
 use App\Http\Controllers\Finance\WithdrawalController;
 use App\Http\Controllers\Gateway\CoraController;
+use App\Http\Controllers\Marketing\MarketingController;
 use App\Http\Controllers\Product\PaymentOptionController;
 use App\Http\Controllers\Product\ProductController;
 use App\Http\Controllers\Product\SubscriptionController;
@@ -69,6 +70,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/contracts', [ContractController::class, 'index'])->name('contracts');
         Route::post('/created-contract', [ContractController::class, 'store'])->name('created-contract');
         Route::post('/deleted-contract/{uuid}', [ContractController::class, 'destroy'])->name('deleted-contract');
+
+        Route::post('/created-post', [MarketingController::class, 'store'])->name('created-post');
+        Route::get('/deleted-post/{uuid}', [MarketingController::class, 'destroy'])->name('deleted-post');
     });
 
     Route::middleware(['CheckIsAdmin'])->group(function () {

@@ -35,43 +35,53 @@
             </div>
         @endisset
     
-        {{-- <div class="card mb-3">
-            <div class="card-header">
-                <div class="d-flex justify-content-between">
-                    <h5 class="mb-1">Notícias</h5>
+        <div class="card mb-3">
+            <div class="card-header d-flex align-items-center justify-content-between">
+                <div>
+                    <h5 class="card-title m-0 me-2">Notícias</h5>
+                    <small>Atualizações. Novidades e informações importantes para você.</small>
                 </div>
-                <p class="mb-0 card-subtitle">Dados atualizados periodicamente.</p>
+                <div class="dropdown">
+                    <button class="btn btn-text-secondary rounded-pill text-muted border-0 p-1 waves-effect waves-light" type="button" id="upgradePlanCard" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="ri-more-2-line ri-20px"></i>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-end" aria-labelledby="upgradePlanCard" style="">
+                        <a class="dropdown-item waves-effect" data-bs-toggle="modal" data-bs-target="#publishModal">Publicar</a>
+                        <a class="dropdown-item waves-effect" href="javascript:void(0);">Filtrar</a>
+                    </div>
+                </div>
             </div>
             <div class="card-body">
                 <div class="demo-inline-spacing mt-4">
                     <div class="list-group">
-                        <div class="list-group-item list-group-item-action d-flex align-items-center cursor-pointer waves-effect">
-                            <div class="w-100">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div class="user-info">
-                                        <h6 class="mb-1 fw-normal">Lista 10/20 SERASA | SPC | Boa Vista OK</h6>
-                                        <div class="d-flex align-items-center">
-                                            <div class="user-status me-2 d-flex align-items-center">
-                                                <span class="badge badge-dot bg-success me-1"></span>
-                                                <small>Limpa Nome</small>
+                        @foreach($posts as $post)
+                            <div class="list-group-item list-group-item-action d-flex align-items-center cursor-pointer waves-effect">
+                                <div class="w-100">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div class="user-info">
+                                            <h6 class="mb-1 fw-normal">{{ $post->title }}</h6>
+                                            <div class="d-flex align-items-center">
+                                                <div class="user-status me-2 d-flex align-items-center">
+                                                    <span class="badge badge-dot bg-success me-1"></span>
+                                                    <small>{{ $post->content }}</small>
+                                                </div>
+                                                <small class="text-muted ms-1">{{ $post->created_at->locale('pt_BR')->isoFormat('DD [de] MMMM [de] YYYY') }}</small>
                                             </div>
-                                            <div class="user-status me-2 d-flex align-items-center">
-                                                <span class="badge badge-dot bg-info me-1"></span>
-                                                <small>1000 e-mails</small>
-                                            </div>
-                                            <small class="text-muted ms-1">10/10/2025</small>
+                                        </div>
+                                        <div class="btn-group">
+                                            <a href="{{ $post->url }}" target="_blank" class="btn btn-outline-dark btn-sm">Acessar</a>
+                                            @if (Auth::user()->type == 'admin' || $post->user_id == Auth::user()->id)
+                                                <a href="{{ route('deleted-post', ['uuid' => $post->uuid]) }}" class="btn btn-outline-dark btn-sm"><i class="ri-delete-bin-5-line"></i></a>
+                                            @endif
                                         </div>
                                     </div>
-                                    <div class="add-btn">
-                                        <button class="btn btn-primary btn-sm waves-effect waves-light">Acessar</button>
-                                    </div>
                                 </div>
-                            </div>
-                        </div>    
+                            </div>    
+                        @endforeach
                     </div>
                 </div>
             </div>
-        </div> --}}
+        </div>
     </div>
 
     <div class="col-12 col-sm-12 col-md-7 col-lg-7">
@@ -155,7 +165,6 @@
                                 <label for="product_id">Produto</label>
                             </div>
                         </div>
-
                         <div class="col-12 col-sm-12 col-md-7 col-lg-7">
                             <div class="form-floating form-floating-outline mb-2">
                                 <input type="text" class="form-control" name="name" placeholder="Ex: João da Silva" required/>
@@ -198,6 +207,80 @@
                                         <input name="default-radio-1" class="form-check-input" type="radio" value="MY" id="payment_customer_my">
                                         <label class="form-check-label" for="payment_customer_my"> Pagamento com MEUS DADOS </label>
                                     </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal"> Fechar </button>
+                    <button type="submit" class="btn btn-success">Confirmar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal fade" id="publishModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <form action="{{ route('created-post') }}" method="POST" class="modal-content">
+                @csrf
+                <div class="modal-header">
+                    <h4 class="modal-title" id="modalFullTitle">Nova Venda</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-2">
+                        <div class="col-12 col-sm-12 col-md-12 col-lg-12">
+                            <div class="form-floating form-floating-outline mb-2">
+                                <input type="text" class="form-control" name="title" placeholder="Ex: Baixas nas Listas" required/>
+                                <label>Título <span class="text-danger">*</span></label>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-12 col-md-12 col-lg-12">
+                            <div class="form-floating form-floating-outline mb-2">
+                                <input type="text" class="form-control" name="content" placeholder="SPC | SERASA | Boa Vista"/>
+                                <label for="content">Complemento <span class="text-danger">*</span></label>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-12 col-md-12 col-lg-12">
+                            <div class="form-floating form-floating-outline mb-2">
+                                <input type="text" class="form-control" name="url" placeholder="www.agilizecrm.com"/>
+                                <label for="url">URL</label>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-12 col-md-6 col-lg-6">
+                            <div class="form-floating form-floating-outline mb-2">
+                                <div class="select2-primary">
+                                    <select name="user_id" id="user_id" class="select2 form-select">
+                                        <option value="{{ Auth::user()->id }}">Escolha quem irá ver</option>
+                                        <option value="{{ Auth::user()->id }}">Meus Afiliados</option>
+                                        @if (Auth::user()->type == 'admin')
+                                            <option value=" ">Todos os usuários</option>
+                                        @endif
+                                    </select>
+                                </div>
+                                <label for="user_id">Opções</label>
+                            </div>
+                        </div>
+                        @if (Auth::user()->type == 'admin')
+                            <div class="col-12 col-sm-12 col-md-6 col-lg-6">
+                                <div class="form-floating form-floating-outline mb-2">
+                                    <div class="select2-primary">
+                                        <select name="access" id="access" class="select2 form-select" required>
+                                            <option value="admin">Administrador</option>
+                                            <option value="collaborator">Colaborador</option>
+                                            <option value="user">Consultor</option>
+                                        </select>
+                                    </div>
+                                    <label for="access">Permissões</label>
+                                </div>
+                            </div>
+                        @endif
+                        <div class="col-12 col-sm-12 col-md-12 col-lg-12">
+                            <div class="form-floating form-floating-outline mb-2">
+                                <div class="form-check">
+                                    <input name="is_fixed" class="form-check-input" type="radio" value="1" id="fixed">
+                                    <label class="form-check-label" for="fixed">Fixar</label>
                                 </div>
                             </div>
                         </div>
