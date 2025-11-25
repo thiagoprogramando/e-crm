@@ -42,13 +42,9 @@ class SaleController extends Controller {
             $query->where('payment_status', $request->payment_status);
         }
 
-        if (Auth::user()->type !== 'admin') {
-            $query->where('user_id', Auth::id());
-        } else {
-            $affiliatedIds = Auth::user()->getDescendantIds();
-            $query->whereIn('user_id', array_merge([Auth::id()], $affiliatedIds));
-        }
-
+        $affiliatedIds = Auth::user()->getDescendantIds();
+        $query->whereIn('user_id', array_merge([Auth::id()], $affiliatedIds));
+        
         $products = Product::with('options')
             ->where(function($query) {
                 $query->where('access', Auth::user()->type)
