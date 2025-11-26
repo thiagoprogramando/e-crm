@@ -12,6 +12,7 @@ use App\Http\Controllers\Gateway\CoraController;
 use App\Http\Controllers\Marketing\MarketingController;
 use App\Http\Controllers\Product\PaymentOptionController;
 use App\Http\Controllers\Product\ProductController;
+use App\Http\Controllers\Product\SearchController;
 use App\Http\Controllers\Product\SubscriptionController;
 use App\Http\Controllers\Sale\ImportController;
 use App\Http\Controllers\Sale\ListController;
@@ -22,8 +23,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [LoginController::class, 'index'])->name('login');
 Route::post('/logon', [LoginController::class, 'store'])->name('logon');
 
-Route::get('/register', [RegisterController::class, 'index'])->name('register');
-Route::post('/registrer/{parent?}', [RegisterController::class, 'store'])->name('registrer');
+Route::get('/register/{parent}', [RegisterController::class, 'index'])->name('register');
+Route::post('/registrer/{parent}', [RegisterController::class, 'store'])->name('registrer');
 
 Route::get('/forgout/{code?}', [ForgoutController::class, 'index'])->name('forgout');
 Route::post('/forgout-password', [ForgoutController::class, 'store'])->name('forgout-password');
@@ -39,13 +40,18 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/subscriptions', [SubscriptionController::class, 'index'])->name('subscriptions');
     Route::post('/created-subscription/{uuid}', [SubscriptionController::class, 'store'])->name('created-subscription');
 
+    Route::get('/searchs', [SearchController::class, 'index'])->name('searchs');
+    Route::post('/created-search', [SearchController::class, 'store'])->name('created-search');
+
     Route::get('/user/{uuid}', [UserController::class, 'show'])->name('user');
     Route::get('/users', [UserController::class, 'index'])->name('users');
     Route::post('/updated-user/{uuid}', [UserController::class, 'update'])->name('updated-user');
     Route::post('/created-user', [UserController::class, 'store'])->name('created-user');
     Route::post('/deleted-user/{uuid}', [UserController::class, 'destroy'])->name('deleted-user');
 
-    Route::get('/deploy', [CoraController::class, 'getToken'])->name('deploy');
+    if (env('APP_ENV') == 'local') {
+        Route::get('/deploy', [CoraController::class, 'getToken'])->name('deploy');
+    }
 
     Route::middleware(['CheckIsMonthly'])->group(function () {
 

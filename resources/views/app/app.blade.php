@@ -85,13 +85,13 @@
     </div>
 
     <div class="col-12 col-sm-12 col-md-7 col-lg-7">
-        <div class="card bg-warning text-white mb-3 p-5">
+        <div class="card bg-warning text-white mb-3 p-5" onclick="onClip('{{ env('APP_URL') }}register/{{ Auth::user()->uuid }}')">
             <figure class="mb-0">
                 <blockquote class="blockquote">
-                    <a onclick="onClip('{{ route('register', ['parent' => Auth::user()->uuid]) }}')">{{ route('register', ['parent' => Auth::user()->uuid]) }}</a>
+                    <a>{{ env('APP_URL') }}register/{{ Auth::user()->uuid }}</a>
                 </blockquote>
                 <figcaption class="blockquote-footer mb-0 text-white">
-                    Link de indicação <cite title="para Auto Cadastro">para Auto Cadastro</cite>
+                    Link de indicação <cite title="clique para copiar">clique para copiar</cite>
                 </figcaption>
             </figure>
         </div>
