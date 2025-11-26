@@ -23,8 +23,12 @@
                                     </div>
                                 @endforeach
                             @endif
-                            <form id="formAuthentication" class="mb-5" action="{{ route('registrer', ['parent' => $parent]) }}" method="POST">
+                            <form id="formAuthentication" class="mb-5" action="{{ route('registrer', ['parent' => $parent->uuid]) }}" method="POST">
                                 @csrf
+                                <div class="form-floating form-floating-outline mb-5">
+                                    <input type="text" class="form-control" id="parent" placeholder="Nome:" value="{{ $parent->name }}" readonly/>
+                                    <label for="parent">Patrocinador</label>
+                                </div>
                                 <div class="form-floating form-floating-outline mb-5">
                                     <input type="text" class="form-control" id="name" name="name" placeholder="Nome:"/>
                                     <label for="name">Nome</label>

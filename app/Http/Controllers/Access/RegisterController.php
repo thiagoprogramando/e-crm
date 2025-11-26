@@ -13,14 +13,19 @@ use Illuminate\Support\Str;
 
 class RegisterController extends Controller {
 
-    public function index($parent = null) {
+    public function index($parent) {
+
+        $parent = User::where('uuid', $parent)->first();
+        if (!$parent) {
+            return redirect()->back()->with('error', 'Patrocinador inválido, fale com seu indicador!');
+        }
 
         return view('register', [
             'parent' => $parent
         ]);
     }
 
-    public function store(Request $request, $parent = null) {
+    public function store(Request $request, $parent) {
 
         $request->cpfcnpj = preg_replace('/\D/', '', $request->cpfcnpj);
 
@@ -45,9 +50,14 @@ class RegisterController extends Controller {
             'cpfcnpj.max'        => 'O CPF/CNPJ não pode ter mais que 18 caracteres!',
         ]);
 
+        $parent = User::where('uuid', $parent)->first();
+        if (!$parent) {
+            return redirect()->back()->with('error', 'Patrocinador inválido, fale com seu indicador!');
+        }
+
         $user                = new User();
         $user->uuid          = Str::uuid();
-        $user->parent_id     = $parent ?? 1;
+        $user->parent_id     = $parent->id;
         $user->name          = $request->name;
         $user->email         = $request->email;
         $user->cpfcnpj       = preg_replace('/\D/', '', $request->cpfcnpj);
