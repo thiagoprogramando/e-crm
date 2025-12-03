@@ -18,7 +18,7 @@
 
         <div class="card mb-3">
             <div class="card-body">
-                <h5 class="card-title mb-1">Carteira de {{ Auth::user()->maskName() }}</h5>
+                <h5 class="card-title mb-1">Carteira de Comissões</h5>
                 <p class="card-subtitle mb-3">
                     {{ \Carbon\Carbon::now()->locale('pt_BR')->isoFormat('dddd [às] HH:mm') }}
                 </p>
@@ -28,7 +28,7 @@
                 <p class="mb-3">Os saques podem ser solicitados podem levar até 24 horas para serem processados.</p>
                 <button type="button" class="btn btn-sm btn-warning waves-effect waves-light" data-bs-toggle="modal" data-bs-target="#createdModal">Solicitar Saque</button>
             </div>
-            <img src="{{ asset('assets/img/illustrations/subscription_3.png') }}" class="scaleX-n1-rtl position-absolute bottom-0 end-0 me-4 mb-4 d-none d-md-block" height="112" alt="Carteira de {{ Auth::user()->maskName() }}">
+            <img src="{{ asset('assets/img/illustrations/subscription_3.png') }}" class="scaleX-n1-rtl position-absolute bottom-0 end-0 me-4 mb-4 d-none d-md-block" height="112" alt="Carteira de Comissões">
         </div>
 
         <div class="card mb-3">

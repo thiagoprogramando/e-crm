@@ -261,6 +261,13 @@
                                         </ul>
                                     </li>
 
+                                    <li class="menu-item">
+                                        <a href="{{ route('searchs') }}" class="menu-link">
+                                            <i class="menu-icon tf-icons ri-user-search-line"></i>
+                                            <div data-i18n="Consultas">Consultas</div>
+                                        </a>
+                                    </li>
+
                                     @if (Auth::user()->parent_id == 1)
                                         <li class="menu-item">
                                             <a href="{{ route('users') }}" class="menu-link">
@@ -276,7 +283,7 @@
                                             <div data-i18n="Contratos">Contratos</div>
                                         </a>
                                         <ul class="menu-sub">
-                                            @if (Auth::user()->type == 'admin')
+                                            @if (Auth::user()->type == 'admin' || Auth::user()->type == 'master')
                                                 <li class="menu-item">
                                                     <a href="{{ route('templates') }}" class="menu-link">
                                                         <i class="menu-icon tf-icons ri-file-edit-line"></i>
@@ -293,22 +300,7 @@
                                         </ul>
                                     </li>
 
-                                    {{-- <li class="menu-item">
-                                        <a href="" class="menu-link menu-toggle">
-                                            <i class="menu-icon tf-icons ri-puzzle-line"></i>
-                                            <div data-i18n="Integrações">Integrações</div>
-                                        </a>
-                                        <ul class="menu-sub">
-                                            <li class="menu-item">
-                                                <a href="" class="menu-link">
-                                                    <i class="menu-icon tf-icons ri-webhook-line"></i>
-                                                    <div data-i18n="APIs">APIs</div>
-                                                </a>
-                                            </li>
-                                        </ul>
-                                    </li> --}}
-
-                                    @if (Auth::user()->type === 'admin')
+                                    @if (Auth::user()->type === 'admin' || Auth::user()->type == 'master')
                                         <li class="menu-item">
                                             <a href="javascript:void(0)" class="menu-link menu-toggle">
                                                 <i class="menu-icon tf-icons ri-list-settings-line"></i>
@@ -338,88 +330,6 @@
                                             </ul>
                                         </li>
                                     @endif
-
-                                    {{-- 
-                                    <li class="menu-item">
-                                        <a href="{{ route('notebooks') }}" class="menu-link">
-                                            <i class="menu-icon tf-icons ri-book-open-fill"></i>
-                                            <div data-i18n="Cadernos">Cadernos</div>
-                                        </a>
-                                    </li>
-
-                                    @if (Auth::user()->role === 'admin')
-                                        <li class="menu-item">
-                                            <a href="javascript:void(0)" class="menu-link menu-toggle">
-                                                <i class="menu-icon tf-icons ri-book-open-fill"></i>
-                                                <div data-i18n="Administração">Administração</div>
-                                            </a>
-                                            <ul class="menu-sub">
-                                                <li class="menu-item">
-                                                    <a href="{{ route('contents') }}" class="menu-link">
-                                                        <div data-i18n="Conteúdos">Conteúdos</div>
-                                                    </a>
-                                                </li>
-                                                <li class="menu-item">
-                                                    <a href="{{ route('boards') }}" class="menu-link">
-                                                        <div data-i18n="Bancas">Bancas</div>
-                                                    </a>
-                                                </li>
-                                                <li class="menu-item">
-                                                    <a href="{{ route('products') }}" class="menu-link">
-                                                        <div data-i18n="Produtos">Produtos</div>
-                                                    </a>
-                                                </li>
-                                            </ul>
-                                        </li>
-
-                                        <li class="menu-item">
-                                            <a href="javascript:void(0)" class="menu-link menu-toggle">
-                                                <i class="menu-icon tf-icons ri-account-pin-box-fill"></i>
-                                                <div data-i18n="Pessoas">Pessoas</div>
-                                            </a>
-                                            <ul class="menu-sub">
-                                                <li class="menu-item">
-                                                    <a href="{{ route('users', ['role' => 'student']) }}" class="menu-link">
-                                                        <div data-i18n="Estudantes">Estudantes</div>
-                                                    </a>
-                                                </li>
-                                                <li class="menu-item">
-                                                    <a href="{{ route('users', ['role' => 'teacher']) }}" class="menu-link">
-                                                        <div data-i18n="Professores">Professores</div>
-                                                    </a>
-                                                </li>
-                                                <li class="menu-item">
-                                                    <a href="{{ route('users', ['role' => 'admin']) }}" class="menu-link">
-                                                        <div data-i18n="Administradores">Administradores</div>
-                                                    </a>
-                                                </li>
-                                            </ul>
-                                        </li>
-                                    @endif --}}
-
-                                    {{-- <li class="menu-item">
-                                        <a href="javascript:void(0)" class="menu-link menu-toggle">
-                                            <i class="menu-icon tf-icons ri-bookmark-fill"></i>
-                                            <div data-i18n="Produtos & Planos">Produtos & Planos</div>
-                                        </a>
-                                        <ul class="menu-sub">
-                                            <li class="menu-item">
-                                                <a href="" class="menu-link">
-                                                    <div data-i18n="Planos">Planos</div>
-                                                </a>
-                                            </li>
-                                            <li class="menu-item">
-                                                <a href="" class="menu-link">
-                                                    <div data-i18n="Produtos">Produtos</div>
-                                                </a>
-                                            </li>
-                                            <li class="menu-item">
-                                                <a href="" class="menu-link">
-                                                    <div data-i18n="Simulados">Simulados</div>
-                                                </a>
-                                            </li>
-                                        </ul>
-                                    </li> --}}
                                 </ul>
                             </div>
                         </aside>

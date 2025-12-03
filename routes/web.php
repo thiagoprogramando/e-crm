@@ -41,6 +41,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/created-subscription/{uuid}', [SubscriptionController::class, 'store'])->name('created-subscription');
 
     Route::get('/searchs', [SearchController::class, 'index'])->name('searchs');
+    Route::post('/search/{uuid}', [SearchController::class, 'search'])->name('search');
     Route::post('/created-search', [SearchController::class, 'store'])->name('created-search');
 
     Route::get('/user/{uuid}', [UserController::class, 'show'])->name('user');

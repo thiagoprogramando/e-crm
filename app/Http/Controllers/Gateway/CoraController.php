@@ -159,6 +159,10 @@ class CoraController extends Controller {
                     $sale->user->parent->increment('wallet', $option->commission_parent);
                 }
 
+                if ($sale->user->addition > 0) {
+                    $sale->user->parent->increment('wallet', $sale->user->addition);
+                }
+
                 Commission::where('payment_token', $sale->uuid)->whereNull('confirmed_at')
                     ->update([
                         'is_paid'      => true,
@@ -182,7 +186,7 @@ class CoraController extends Controller {
                 $invoice->payment_date   = now();
                 if ($invoice->save()) {
                     if ($invoice->payment_type === 'DEPOSIT') {
-                        $invoice->user->increment('wallet', $invoice->value);
+                        $invoice->user->increment('wallet_cash', $invoice->value);
                     }
 
                     return response()->json(['message' => 'Fatura marcada como paga!'], 200);
