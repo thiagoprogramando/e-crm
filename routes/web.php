@@ -33,6 +33,8 @@ Route::post('/recover-password/{code}', [ForgoutController::class, 'update'])->n
 Route::get('/contract/{uuid}', [ContractController::class, 'show'])->name('contract');
 Route::post('/updated-contract/{uuid}', [ContractController::class, 'update'])->name('updated-contract');
 
+Route::get('/data-search/{uuid}', [SearchController::class, 'data'])->name('data-search');
+
 Route::middleware(['auth'])->group(function () {
 
     Route::get('/app', [AppController::class, 'index'])->name('app');
@@ -42,7 +44,6 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/searchs', [SearchController::class, 'index'])->name('searchs');
     Route::post('/search/{uuid}', [SearchController::class, 'search'])->name('search');
-    Route::post('/created-search', [SearchController::class, 'store'])->name('created-search');
 
     Route::get('/user/{uuid}', [UserController::class, 'show'])->name('user');
     Route::get('/users', [UserController::class, 'index'])->name('users');
@@ -103,6 +104,9 @@ Route::middleware(['auth'])->group(function () {
 
         Route::get('/withdrawals', [WithdrawalController::class, 'index'])->name('withdrawals');
         Route::post('/send-withdrawal', [WithdrawalController::class, 'sendWithdrawal'])->name('send-withdrawal');  
+
+        Route::post('/created-search', [SearchController::class, 'store'])->name('created-search');
+        Route::post('/updated-search/{uuid}', [SearchController::class, 'update'])->name('updated-search');
     });
 
     Route::get('/logout', [LoginController::class, 'logout'])->name('logout');

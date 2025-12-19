@@ -47,7 +47,7 @@
             <div class="card-body pb-1 pt-0">
                 <div class="mb-6 mt-1">
                     <div class="d-flex align-items-center">
-                        {{-- <h1 class="mb-0 me-2 text-white">{{ $withdrawals->count() }}</h1> --}}
+                        <h1 class="mb-0 me-2 text-white">{{ $extracts->count() }}</h1>
                         <div class="badge bg-label-dark rounded-pill">Dados atualizados automáticamente</div>
                     </div>
                     <p class="mt-0 text-white">Histórico</p>
@@ -59,37 +59,22 @@
                                 <td class="ps-0 py-4">
                                     <span class="text-white">DETALHES</span>
                                 </td>
-                                <td class="ps-0">
-                                    <span class="text-white">PROCESSAMENTO</span>
-                                </td>
                                 <td class="ps-0 text-center">
                                     <span class="text-white">OPÇÕES</span>
                                 </td>
                             </tr>
-                            {{-- @foreach ($withdrawals as $withdrawal)
+                            @foreach ($extracts as $extract)
                                 <tr>
                                     <td class="ps-0 py-4">
-                                        <span class="text-white">{{ Str::limit($withdrawal->description, 30) }}</span> <br>
-                                        <small class="text-white ms-1">R$ {{ number_format($withdrawal->value, 2, ',', '.') }}</small>
-                                    </td>
-                                    <td class="ps-0">
-                                        <span class="text-white">
-                                            {{ $withdrawal->is_paid == true ? 'Pago' : 'Aguardando processamento...' }} <br>
-                                            <small>{!! $withdrawal->statusLabel() !!}</small>
-                                        </span>
+                                        <span class="text-white">{{ $extract->cpfcnpjLabel() }}</span> <br>
+                                        <small class="text-white ms-1">{{ $extract->search->title }}</small>
                                     </td>
                                     <td class="text-center">
-                                        @if($withdrawal->is_paid == false)
-                                            <form action="{{ route('deleted-withdrawal', ['uuid' => $withdrawal->uuid]) }}" method="POST" class="confirm">
-                                                @csrf
-                                                <button type="submit" class="btn btn-sm btn-danger"><i class="ri-close-circle-line"></i></button>
-                                            </form>
-                                        @else
-                                            <a href="{{ $withdrawal->payment_url }}" target="_blank" class="btn btn-sm btn-success text-white" title="Comprovante"><i class="ri-file-list-3-line"></i></a>
-                                        @endif
+                                        <button type="button" class="btn btn-dark btn-sm" title="Copiar URL da Consulta" onclick="onClip('{{ route('data-search', ['uuid' => $extract->uuid]) }}')"><i class="ri-file-copy-line"></i></button>
+                                        <a href="{{ route('data-search', ['uuid' => $extract->uuid]) }}" target="_blank" class="btn btn-sm btn-info text-white" title="Comprovante">Acessar</a> 
                                     </td>
                                 </tr>
-                            @endforeach --}}
+                            @endforeach
                         </tbody>
                     </table>
                     <div class="text-center">
@@ -110,8 +95,14 @@
                                 <h5 class="mb-0">{{ $search->title }}</h5>
                             </div>
                             <p class="text-success">R$ {{ number_format($search->value + $search->addition, 2, ',', '.') }}</p>
-                            <small class="text-muted">{{ $search->content }}</small>
-                            <button class="btn btn-sm btn-warning w-100 mt-3" data-bs-toggle="modal" data-bs-target="#searchModal{{ $search->uuid }}">Consultar</button>
+                            <small class="text-muted">{{ $search->content }}</small> <br>
+
+                            <div class="btn-group w-100 mt-2">
+                                <button class="btn btn-sm btn-outline-warning mb-2" data-bs-toggle="modal" data-bs-target="#searchModal{{ $search->uuid }}" @disabled($search->status == 'inactive')>Consultar</button>
+                                @if (Auth::user()->type == 'master')
+                                    <button class="btn btn-sm btn-outline-info mb-2" data-bs-toggle="modal" data-bs-target="#updateModal{{ $search->uuid }}">Editar</button>
+                                @endif
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -145,45 +136,89 @@
                         </form>
                     </div>
                 </div>
-            @endforeach
-        </div>
-    </div>
 
-    <div class="modal fade" id="depositedModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-sm" role="document">
-            <form action="{{ route('created-deposit') }}" method="POST" enctype="multipart/form-data" class="modal-content">
-                @csrf
-                <div class="modal-header">
-                    <h4 class="modal-title" id="modalFullTitle">Dados do Déposito</h4>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="row g-2">
-                        <div class="col-12 col-sm-12 col-md-12 col-lg-12">
-                            <div class="form-floating form-floating-outline mb-2">
-                                <input type="text" class="form-control" name="name" value="{{ Auth::user()->name }}" readonly/>
-                                <label>Nome <span class="text-danger">*</span></label>
+                <div class="modal fade" id="updateModal{{ $search->uuid }}" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <form action="{{ route('updated-search', ['uuid' => $search->uuid]) }}" method="POST" enctype="multipart/form-data" class="modal-content">
+                            @csrf
+                            <div class="modal-header">
+                                <h4 class="modal-title" id="modalFullTitle">Dados do Déposito</h4>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
-                        </div>
-                        <div class="col-12 col-sm-12 col-md-12 col-lg-12">
-                            <div class="form-floating form-floating-outline mb-2">
-                                <input type="text" class="form-control cpfcnpj" name="cpfcnpj" value="{{ Auth::user()->cpfcnpj }}" readonly/>
-                                <label for="cpfcnpj">CPF/CNPJ <span class="text-danger">*</span></label>
+                            <div class="modal-body">
+                                <div class="row g-2">
+                                    <div class="col-12 col-sm-12 col-md-12 col-lg-12">
+                                        <div class="form-floating form-floating-outline mb-2">
+                                            <input type="text" class="form-control" name="title" placeholder="SERASA CRENET PJ" value="{{ $search->title }}"/>
+                                            <label>Título <span class="text-danger">*</span></label>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-sm-12 col-md-12 col-lg-12">
+                                        <div class="form-floating form-floating-outline mb-2">
+                                            <input type="text" class="form-control" name="content" placeholder="Dados básicos" value="{{ $search->content }}"/>
+                                            <label for="content">Descrição</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-sm-12 col-md-6 col-lg-6">
+                                        <div class="form-floating form-floating-outline mb-2">
+                                            <input type="text" class="form-control money" name="value" placeholder="Ex: 100,00" oninput="maskValue(this)" value="{{ $search->value }}"/>
+                                            <label for="value">Valor</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-sm-12 col-md-6 col-lg-6">
+                                        <div class="form-floating form-floating-outline mb-2">
+                                            <input type="text" class="form-control money" name="addition" placeholder="Ex: 100,00" oninput="maskValue(this)" value="{{ $search->addition }}"/>
+                                            <label for="addition">Adicional</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-sm-12 col-md-12 col-lg-12">
+                                        <div class="form-floating form-floating-outline mb-2">
+                                            <input type="text" class="form-control" name="api_url" placeholder="https://api.example.com" value="{{ $search->api_url }}"/>
+                                            <label for="api_url">API URL</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-sm-12 col-md-6 col-lg-6">
+                                        <div class="form-floating form-floating-outline mb-2">
+                                            <input type="text" class="form-control" name="api_token" placeholder="Seu token aqui" value="{{ $search->api_token }}"/>
+                                            <label for="api_token">API TOKEN</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-sm-12 col-md-6 col-lg-6">
+                                        <div class="form-floating form-floating-outline mb-2">
+                                            <input type="text" class="form-control" name="api_version" placeholder="Versão aqui" value="{{ $search->api_version }}"/>
+                                            <label for="api_version">API VERSION</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-sm-12 col-md-6 col-lg-6">
+                                        <div class="form-floating form-floating-outline mb-2">
+                                            <div class="select2-primary">
+                                                <select name="api_method" id="api_method" class="select2 form-select">
+                                                    <option value="  ">Métodos</option>
+                                                    <option value="POST" @selected($search->api_method == 'POST')>POST</option>
+                                                    <option value="GET" @selected($search->api_method == 'GET')>GET</option>
+                                                    <option value="PUT" @selected($search->api_method == 'PUT')>PUT</option>
+                                                    <option value="DELETE" @selected($search->api_method == 'DELETE')>DELETE</option>
+                                                </select>
+                                            </div>
+                                            <label for="api_method">API MÉTODO</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-sm-12 col-md-64 col-lg-6">
+                                        <div class="form-floating form-floating-outline mb-2">
+                                            <input type="text" class="form-control" name="api_code" placeholder="Código da API" value="{{ $search->api_code }}"/>
+                                            <label for="api_code">API CODE</label>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                        <div class="col-12 col-sm-12 col-md-12 col-lg-12">
-                            <div class="form-floating form-floating-outline mb-2">
-                                <input type="text" class="form-control money" name="value" placeholder="Ex: 100,00" oninput="maskValue(this)" required/>
-                                <label for="value">Valor</label>
+                            <div class="modal-footer btn-group">
+                                <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal"> Fechar </button>
+                                <button type="submit" class="btn btn-success">Confirmar</button>
                             </div>
-                        </div>
+                        </form>
                     </div>
                 </div>
-                <div class="modal-footer btn-group">
-                    <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal"> Fechar </button>
-                    <button type="submit" class="btn btn-success">Confirmar</button>
-                </div>
-            </form>
+            @endforeach
         </div>
     </div>
 
@@ -289,6 +324,44 @@
                             <div class="form-floating form-floating-outline mb-2">
                                 <input type="date" class="form-control" name="payment_date_end"/>
                                 <label for="payment_date_end">Data Final</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer btn-group">
+                    <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal"> Fechar </button>
+                    <button type="submit" class="btn btn-success">Confirmar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal fade" id="depositedModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-sm" role="document">
+            <form action="{{ route('created-deposit') }}" method="POST" enctype="multipart/form-data" class="modal-content">
+                @csrf
+                <div class="modal-header">
+                    <h4 class="modal-title" id="modalFullTitle">Dados do Déposito</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-2">
+                        <div class="col-12 col-sm-12 col-md-12 col-lg-12">
+                            <div class="form-floating form-floating-outline mb-2">
+                                <input type="text" class="form-control" name="name" value="{{ Auth::user()->name }}" readonly/>
+                                <label>Nome <span class="text-danger">*</span></label>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-12 col-md-12 col-lg-12">
+                            <div class="form-floating form-floating-outline mb-2">
+                                <input type="text" class="form-control cpfcnpj" name="cpfcnpj" value="{{ Auth::user()->cpfcnpj }}" readonly/>
+                                <label for="cpfcnpj">CPF/CNPJ <span class="text-danger">*</span></label>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-12 col-md-12 col-lg-12">
+                            <div class="form-floating form-floating-outline mb-2">
+                                <input type="text" class="form-control money" name="value" placeholder="Ex: 100,00" oninput="maskValue(this)" required/>
+                                <label for="value">Valor</label>
                             </div>
                         </div>
                     </div>

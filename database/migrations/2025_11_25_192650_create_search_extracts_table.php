@@ -16,7 +16,8 @@ return new class extends Migration {
             $table->string('cpfcnpj');
             $table->string('status_code');
             $table->string('status_description')->nullable();
-            $table->json('data');
+            $table->json('request')->nullable();
+            $table->json('response')->nullable();
             $table->timestamps();
         });
     }

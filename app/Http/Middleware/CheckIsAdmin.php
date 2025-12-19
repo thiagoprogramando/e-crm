@@ -16,7 +16,7 @@ class CheckIsAdmin {
             return redirect()->route('login')->with('error', 'Faça login para continuar!');
         }
 
-        if ($user->type == 'admin') {
+        if ($user->type == 'admin' || $user->type == 'master') {
             return $next($request);
         }
 

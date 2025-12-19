@@ -6,10 +6,6 @@
     <div class="col-12 col-sm-12 col-md-7 col-lg-7">
 
         <div class="kanban-add-new-board mb-5">
-            <a class="kanban-add-board-btn" for="kanban-add-board-input" data-bs-toggle="modal" data-bs-target="#depositedModal">
-                <i class="ri-add-line"></i>
-                <span class="align-middle">Depositar</span>
-            </a>
             <label class="kanban-add-board-btn" for="kanban-add-board-input" data-bs-toggle="modal" data-bs-target="#filterModal">
                 <i class="ri-filter-line"></i>
                 <span class="align-middle">Filtrar</span>
@@ -172,44 +168,6 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal"> Fechar </button>
-                    <button type="submit" class="btn btn-success">Confirmar</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <div class="modal fade" id="depositedModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-sm" role="document">
-            <form action="{{ route('created-deposit') }}" method="POST" enctype="multipart/form-data" class="modal-content">
-                @csrf
-                <div class="modal-header">
-                    <h4 class="modal-title" id="modalFullTitle">Dados do Déposito</h4>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="row g-2">
-                        <div class="col-12 col-sm-12 col-md-12 col-lg-12">
-                            <div class="form-floating form-floating-outline mb-2">
-                                <input type="text" class="form-control" name="name" value="{{ Auth::user()->name }}" readonly/>
-                                <label>Nome <span class="text-danger">*</span></label>
-                            </div>
-                        </div>
-                        <div class="col-12 col-sm-12 col-md-12 col-lg-12">
-                            <div class="form-floating form-floating-outline mb-2">
-                                <input type="text" class="form-control cpfcnpj" name="cpfcnpj" value="{{ Auth::user()->cpfcnpj }}" readonly/>
-                                <label for="cpfcnpj">CPF/CNPJ <span class="text-danger">*</span></label>
-                            </div>
-                        </div>
-                        <div class="col-12 col-sm-12 col-md-12 col-lg-12">
-                            <div class="form-floating form-floating-outline mb-2">
-                                <input type="text" class="form-control money" name="value" placeholder="Ex: 100,00" oninput="maskValue(this)" required/>
-                                <label for="value">Valor</label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer btn-group">
                     <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal"> Fechar </button>
                     <button type="submit" class="btn btn-success">Confirmar</button>
                 </div>
