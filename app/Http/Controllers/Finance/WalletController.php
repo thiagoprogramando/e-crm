@@ -18,25 +18,42 @@ class WalletController extends Controller {
         $start = $request->payment_date_start;
         $end   = $request->payment_date_end;
 
-        $withdrawalsQuery = Withdraw::where('user_id', Auth::id());
-        if ($start) {
-            $withdrawalsQuery->whereDate('created_at', '>=', $start);
-        }
-        if ($end) {
-            $withdrawalsQuery->whereDate('created_at', '<=', $end);
-        }
+        switch (env('APP_BANK')) {
+            case 'ASAAS':
+                $assasController = new AssasController();
 
-        $commissionsQuery = Commission::where('user_id', Auth::id());
-        if ($start) {
-            $commissionsQuery->whereDate('created_at', '>=', $start);
-        }
-        if ($end) {
-            $commissionsQuery->whereDate('created_at', '<=', $end);
+                $withdrawals = $assasController->getWithdrawals($start, $end);
+                $commissions = $assasController->getCommissions($start, $end);
+                $balance     = $assasController->getBalance();
+                break;
+            case 'CORA':
+                $withdrawalsQuery = Withdraw::where('user_id', Auth::id());
+                if ($start) {
+                    $withdrawalsQuery->whereDate('created_at', '>=', $start);
+                }
+                if ($end) {
+                    $withdrawalsQuery->whereDate('created_at', '<=', $end);
+                }
+
+                $commissionsQuery = Commission::where('user_id', Auth::id());
+                if ($start) {
+                    $commissionsQuery->whereDate('created_at', '>=', $start);
+                }
+                if ($end) {
+                    $commissionsQuery->whereDate('created_at', '<=', $end);
+                }
+
+                $commissions = $commissionsQuery->orderBy('created_at', 'desc')->get();
+                $withdrawals = $withdrawalsQuery->orderBy('created_at', 'desc')->get();
+                break;
+            case 'OFFLINE':
+                break;
         }
 
         return view('app.Finance.Wallet.index', [
-            'withdrawals' =>$withdrawalsQuery->orderBy('created_at', 'desc')->paginate(40),
-            'commissions' => $commissionsQuery->orderBy('created_at', 'desc')->paginate(20),
+            'withdrawals' => $withdrawals,
+            'commissions' => $commissions,
+            'balance'     => $balance ?? Auth::user()->wallet,
         ]);
     }
 

@@ -4,20 +4,18 @@ namespace App\Http\Controllers\Sale;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Gateway\AssasController;
+use App\Http\Controllers\Gateway\CoraController;
+
+use App\Models\Commission;
 use App\Models\PaymentOption;
 use App\Models\Product;
 use App\Models\Sale;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
-use Maatwebsite\Excel\Facades\Excel;
 use PhpOffice\PhpSpreadsheet\IOFactory;
-
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Log;
-
 class ImportController extends Controller {
     
     public function store(Request $request) {
@@ -40,9 +38,9 @@ class ImportController extends Controller {
         $spreadsheet  = IOFactory::load($file->getPathname());
         $worksheet    = $spreadsheet->getActiveSheet();
         $rows         = $worksheet->toArray();
-        $billingMode  = $request->input('payment_customer', 'CLIENT');
-        $asaas       = new AssasController();
-
+        $billingMode  = $request->input('customer', 'CLIENT');
+        $user         = Auth::user();
+        
         $createdSales = 0;
         $failedSales  = [];
         $salesBuffer  = [];
@@ -72,34 +70,42 @@ class ImportController extends Controller {
             $totalValue += $value;
         }
 
-        if ($billingMode === 'CLIENT') {
+        switch (env('APP_BANK')) {
+            case 'ASAAS':
+                $asaas      = new AssasController();
+                $customer  = $asaas->createdCustomer($user->name, preg_replace('/\D/', '', $user->cpfcnpj), $user->phone, $user->email);
+                
+                if ($customer['status'] !== 'success') return back()->with('infor', 'Erro ao criar cliente para boleto único');
+                
+                if ($option->commission_seller > 0) {
+                    $commissions[] = [
+                        'walletId'          => Auth::user()->bank_api_key,
+                        'fixedValue'        => $option->commission_seller,
+                        'description'       => 'Comissão de Vendedor para venda Cliente:'. $request->name
+                    ];
+                }
 
-            foreach ($salesBuffer as $index => $data) {
+                if (($option->commission_parent > 0) && Auth::user()->parent_id) {
+                    $commissions[] = [
+                        'walletId'          => Auth::user()->parent->bank_api_key,
+                        'fixedValue'        => $option->commission_parent,
+                        'description'       => 'Comissão de Vendedor para venda Cliente:'. $request->name
+                    ];
+                }
 
-                try {
+                if (Auth::user()->addition > 0) {
+                    $commissions[] = [
+                        'walletId'          => Auth::user()->parent->bank_api_key,
+                        'fixedValue'        => max(0, Auth::user()->addition),
+                        'description'       => 'Adicional de Patrocinador para venda Cliente:'. $request->name
+                    ];
+                }
 
-                    $customer = $asaas->createdCustomer($data['nome'], $data['cpfcnpj'], $data['phone'], $data['email']);
+                $payment = $asaas->createdCharge(
+                    $customer['id'], $option->payment_method, 1, $totalValue, "Venda conjunta de " . count($salesBuffer) . " clientes", now()->addDays(2), $commissions ?? null
+                );
 
-                    if ($customer['status'] !== 'success') {
-                        $failedSales[] = "Linha $index: " . $customer['message'];
-                        continue;
-                    }
-
-                    $payment = $asaas->createdCharge(
-                        $customer['id'],
-                        $option->payment_method,
-                        $option->payment_installments,
-                        $data['value'],
-                        $product->title,
-                        now()->addDays(2),
-                        $option->payment_splits
-                    );
-
-                    if ($payment['status'] !== 'success') {
-                        $failedSales[] = "Linha $index: " . $payment['message'];
-                        continue;
-                    }
-
+                foreach ($salesBuffer as $data) {
                     Sale::create([
                         'uuid'                 => Str::uuid(),
                         'user_id'              => Auth::id(),
@@ -115,52 +121,84 @@ class ImportController extends Controller {
                         'payment_due_date'     => now()->addDays(2),
                         'payment_status'       => 'PENDING'
                     ]);
-
-                    $createdSales++;
-
-                } catch (\Throwable $th) {
-                    $failedSales[] = "Linha $index: Erro inesperado: " . $th->getMessage();
                 }
-            }
-        } else {
 
-            $user = Auth::user();
-            $customer = $asaas->createdCustomer($user->name, preg_replace('/\D/', '', $user->cpfcnpj), $user->phone, $user->email);
+                $createdSales = count($salesBuffer);
+                break;
+            case 'CORA':
+                $coraController = new CoraController();
+                $customer = [
+                    'name'      => Auth::user()->name,
+                    'cpfcnpj'   => preg_replace('/\D/', '', Auth::user()->cpfcnpj),
+                    'phone'     => preg_replace('/\D/', '', Auth::user()->phone),
+                    'email'     => Auth::user()->email,
+                ];
+                
+                $payment = $coraController->createdCharge($customer, $totalValue, $product->title, null, null);
+                if ($payment['status'] !== 'success') {
+                    return redirect()->back()->with('infor', $payment['message']);
+                }
 
-            if ($customer['status'] !== 'success')
-                return back()->with('infor', 'Erro ao criar cliente para boleto único');
+                foreach ($salesBuffer as $data) {
+                    $uuid = Str::uuid();
 
-            $payment = $asaas->createdCharge(
-                $customer['id'],
-                $option->payment_method,
-                1,
-                $totalValue,
-                "Venda conjunta de " . count($salesBuffer) . " clientes",
-                now()->addDays(2),
-                $option->payment_splits
-            );
+                    if ($option->commission_seller > 0) {
+                        $commission = new Commission();
+                        $commission->uuid           = Str::uuid();
+                        $commission->user_id        = Auth::user()->id;
+                        $commission->product_id     = $product->id;
+                        $commission->payment_token  = $uuid;
+                        $commission->value          = $option->commission_seller;
+                        $commission->description    = 'Comissão de Vendedor para venda Cliente:'. $data['nome'];
+                        $commission->save();
+                    }
 
-            foreach ($salesBuffer as $data) {
-                Sale::create([
-                    'uuid'                 => Str::uuid(),
-                    'user_id'              => Auth::id(),
-                    'product_id'           => $product->id,
-                    'payment_option_id'    => $option->id,
-                    'customer_name'        => $data['nome'],
-                    'customer_cpfcnpj'     => $data['cpfcnpj'],
-                    'customer_email'       => $data['email'],
-                    'customer_phone'       => $data['phone'],
-                    'value'                => $data['value'],
-                    'payment_token'        => $payment['id'],
-                    'payment_url'          => $payment['invoiceUrl'],
-                    'payment_due_date'     => now()->addDays(2),
-                    'payment_status'       => 'PENDING'
-                ]);
-            }
+                    if (($option->commission_parent > 0) && Auth::user()->parent_id) {
+                        $commission = new Commission();
+                        $commission->uuid           = Str::uuid();
+                        $commission->user_id        = Auth::user()->id;
+                        $commission->product_id     = $product->id;
+                        $commission->payment_token  = $uuid;
+                        $commission->value          = $option->commission_parent;
+                        $commission->description    = 'Comissão de Patrocinador para venda Cliente:'. $data['nome'];
+                        $commission->save();
+                    }
 
-            $createdSales = count($salesBuffer);
+                    if (Auth::user()->addition > 0) {
+                        $commission = new Commission();
+                        $commission->uuid           = Str::uuid();
+                        $commission->user_id        = Auth::user()->parent_id;
+                        $commission->product_id     = $product->id;
+                        $commission->payment_token  = $uuid;
+                        $commission->value          = max(0, Auth::user()->addition);
+                        $commission->description    = 'Adicional de Patrocinador para venda Cliente:'. $data['nome'];
+                        $commission->save();
+                    }
+
+                    Sale::create([
+                        'uuid'                 => $uuid,
+                        'user_id'              => Auth::id(),
+                        'product_id'           => $product->id,
+                        'payment_option_id'    => $option->id,
+                        'customer_name'        => $data['nome'],
+                        'customer_cpfcnpj'     => $data['cpfcnpj'],
+                        'customer_email'       => $data['email'],
+                        'customer_phone'       => $data['phone'],
+                        'value'                => $data['value'],
+                        'payment_token'        => $payment['id'],
+                        'payment_url'          => $payment['invoiceUrl'],
+                        'payment_due_date'     => now()->addDays(2),
+                        'payment_status'       => 'PENDING'
+                    ]);
+                }
+
+                $createdSales = count($salesBuffer);
+                break;
+            default:
+                return redirect()->back()->with('infor', 'Conexão bancária indisponível no momento, tente novamente mais tarde!');
+                break;
         }
-
+        
         return back()->with('success', "Importação concluída! ✔ $createdSales vendas criadas.")->with('warning', count($failedSales) ? implode("\n", $failedSales) : null);
     }
 

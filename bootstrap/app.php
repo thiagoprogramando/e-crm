@@ -3,6 +3,7 @@
 use App\Http\Middleware\CheckIsAdmin;
 use App\Http\Middleware\CheckIsMonthly;
 use App\Http\Middleware\CheckIsSubscription;
+use App\Http\Middleware\ShareProducts;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -17,6 +18,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->web( [
             CheckIsSubscription::class,
+            ShareProducts::class,
         ]);
         $middleware->appendToGroup('CheckIsAdmin', [
             CheckIsAdmin::class,

@@ -89,6 +89,39 @@
     </div>
 
     <div class="col-12 col-sm-12 col-md-5 col-lg-5">
+        <div class="card card-action mb-6">
+            <div class="card-header align-items-center">
+                <h5 class="card-action-title mb-0">Tokens Bancários</h5>
+            </div>
+            <div class="card-body">
+                <form action="{{ route('validate-user-bank', ['uuid' => $user->uuid]) }}" method="POST" class="row">
+                    @csrf
+                    <div class="col-12 mb-3">
+                        <div class="form-floating form-floating-outline">
+                            <input type="text" name="bank_api_key" id="bank_api_key" class="form-control" placeholder="API KEY:" value="{{ $user->bank_api_key }}"/>
+                            <label for="bank_api_key">API KEY:</label>
+                        </div>
+                    </div>
+                    <div class="col-12 mb-3">
+                        <div class="form-floating form-floating-outline">
+                            <input type="text" name="bank_api_wallet" id="bank_api_wallet" class="form-control" placeholder="E-mail:" value="{{ $user->bank_api_wallet }}"/>
+                            <label for="bank_api_wallet">API WALLET:</label>
+                        </div>
+                    </div>
+                    <div class="col-12 mb-3">
+                        <div class="form-floating form-floating-outline">
+                            <input type="text" name="bank_api_customer" id="bank_api_customer" class="form-control" placeholder="API CLIENT:" value="{{ $user->bank_api_customer }}" oninput="maskbank_api_customer(this)"/>
+                            <label for="bank_api_customer">API CLIENT:</label>
+                        </div>
+                    </div>
+                    <div class="col-12 mb-3 d-flex justify-content-end align-items-center">
+                        <button type="submit" class="btn btn-outline-success w-100 mt-2">Válidar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+
         <div class="card card-action mb-6" id="invoices">
             <div class="card-header align-items-center">
                 <h5 class="card-action-title mb-0">Faturas</h5>

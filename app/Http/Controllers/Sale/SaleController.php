@@ -72,49 +72,47 @@ class SaleController extends Controller {
 
         $uuid = Str::uuid();
 
-        if ($option->commission_seller > 0) {
-            $commission = new Commission();
-            $commission->uuid           = Str::uuid();
-            $commission->user_id        = Auth::user()->id;
-            $commission->product_id     = $product->id;
-            $commission->payment_token  = $uuid;
-            $commission->value          = $option->commission_seller;
-            $commission->description    = 'Comissão de Vendedor para venda Cliente:'. $request->name;
-            $commission->save();
-        }
-
-         if (($option->commission_parent > 0) && Auth::user()->parent_id) {
-            $commission = new Commission();
-            $commission->uuid           = Str::uuid();
-            $commission->user_id        = Auth::user()->id;
-            $commission->product_id     = $product->id;
-            $commission->payment_token  = $uuid;
-            $commission->value          = $option->commission_parent;
-            $commission->description    = 'Comissão de Patrocinador para venda Cliente:'. $request->name;
-            $commission->save();
-        }
-
-        if (Auth::user()->addition > 0) {
-            $commission = new Commission();
-            $commission->uuid           = Str::uuid();
-            $commission->user_id        = Auth::user()->parent_id;
-            $commission->product_id     = $product->id;
-            $commission->payment_token  = $uuid;
-            $commission->value          = max(0, Auth::user()->addition);
-            $commission->description    = 'Adicional de Patrocinador para venda Cliente:'. $request->name;
-            $commission->save();
-        }
-
         switch (env('APP_BANK')) {
             case 'ASAAS':
                 $assasController = new AssasController();
 
-                $customer = $assasController->createdCustomer($request->name, preg_replace('/\D/', '', $request->cpfcnpj),  preg_replace('/\D/', '', $request->phone), $request->email);
+                if ($option->commission_seller > 0) {
+                    $commissions[] = [
+                        'walletId'          => Auth::user()->bank_api_key,
+                        'fixedValue'        => $option->commission_seller,
+                        'externalReference' => $uuid,
+                        'description'       => 'Comissão de Vendedor para venda Cliente:'. $request->name
+                    ];
+                }
+
+                if (($option->commission_parent > 0) && Auth::user()->parent_id) {
+                    $commissions[] = [
+                        'walletId'          => Auth::user()->parent->bank_api_key,
+                        'fixedValue'        => $option->commission_parent,
+                        'externalReference' => $uuid,
+                        'description'       => 'Comissão de Vendedor para venda Cliente:'. $request->name
+                    ];
+                }
+
+                if (Auth::user()->addition > 0) {
+                    $commissions[] = [
+                        'walletId'          => Auth::user()->parent->bank_api_key,
+                        'fixedValue'        => max(0, Auth::user()->addition),
+                        'externalReference' => $uuid,
+                        'description'       => 'Adicional de Patrocinador para venda Cliente:'. $request->name
+                    ];
+                }
+
+                if ($request->customer === 'MY') {
+                    $customer = $assasController->createdCustomer(Auth::user()->name, preg_replace('/\D/', '', Auth::user()->cpfcnpj),  preg_replace('/\D/', '', Auth::user()->phone), Auth::user()->email);
+                } else {
+                    $customer = $assasController->createdCustomer($request->name, preg_replace('/\D/', '', $request->cpfcnpj),  preg_replace('/\D/', '', $request->phone), $request->email);
+                }
                 if ($customer['status'] !== 'success') {
                     return redirect()->back()->with('infor', $customer['message']);
                 }
 
-                $payment = $assasController->createdCharge($customer['id'], $option->payment_method, $option->payment_installments, ($option->value + Auth::user()->addition + $product->fees_value), $product->title, now()->addDays(2), $option->payment_splits);
+                $payment = $assasController->createdCharge($customer['id'], $option->payment_method, $option->payment_installments, ($option->value + Auth::user()->addition + $product->fees_value), $product->title, now()->addDays(2), $commissions ?? []);
                 if ($payment['status'] !== 'success') {
                     return redirect()->back()->with('infor', $customer['message']);
                 }
@@ -123,8 +121,57 @@ class SaleController extends Controller {
                 break;
             case 'CORA':
                 $coraController = new CoraController();
+
+                if ($option->commission_seller > 0) {
+                    $commission = new Commission();
+                    $commission->uuid           = Str::uuid();
+                    $commission->user_id        = Auth::user()->id;
+                    $commission->product_id     = $product->id;
+                    $commission->payment_token  = $uuid;
+                    $commission->value          = $option->commission_seller;
+                    $commission->description    = 'Comissão de Vendedor para venda Cliente:'. $request->name;
+                    $commission->save();
+                }
+
+                if (($option->commission_parent > 0) && Auth::user()->parent_id) {
+                    $commission = new Commission();
+                    $commission->uuid           = Str::uuid();
+                    $commission->user_id        = Auth::user()->id;
+                    $commission->product_id     = $product->id;
+                    $commission->payment_token  = $uuid;
+                    $commission->value          = $option->commission_parent;
+                    $commission->description    = 'Comissão de Patrocinador para venda Cliente:'. $request->name;
+                    $commission->save();
+                }
+
+                if (Auth::user()->addition > 0) {
+                    $commission = new Commission();
+                    $commission->uuid           = Str::uuid();
+                    $commission->user_id        = Auth::user()->parent_id;
+                    $commission->product_id     = $product->id;
+                    $commission->payment_token  = $uuid;
+                    $commission->value          = max(0, Auth::user()->addition);
+                    $commission->description    = 'Adicional de Patrocinador para venda Cliente:'. $request->name;
+                    $commission->save();
+                }
+
+                if ($request->customer === 'MY') {
+                    $customer = [
+                        'name'      => Auth::user()->name,
+                        'cpfcnpj'   => preg_replace('/\D/', '', Auth::user()->cpfcnpj),
+                        'phone'     => preg_replace('/\D/', '', Auth::user()->phone),
+                        'email'     => Auth::user()->email,
+                    ];
+                } else {
+                    $customer = [
+                        'name'      => $request->name,
+                        'cpfcnpj'   => preg_replace('/\D/', '', $request->cpfcnpj),
+                        'phone'     => preg_replace('/\D/', '', $request->phone),
+                        'email'     => $request->email,
+                    ];
+                }
                 
-                $payment = $coraController->createdCharge(Auth::user(), ($option->value + Auth::user()->addition + $product->fees_value), $product->title, null, $option->payment_splits);
+                $payment = $coraController->createdCharge($customer, ($option->value + Auth::user()->addition + $product->fees_value), $product->title, null, $option->payment_splits);
                 if ($payment['status'] !== 'success') {
                     return redirect()->back()->with('infor', $payment['message']);
                 }

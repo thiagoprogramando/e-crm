@@ -3,7 +3,7 @@
 
     <link rel="stylesheet" href="{{ asset('assets/vendor/css/pages/cards-statistics.css') }}"/>
 
-    <div class="col-12 col-sm-12 col-md-7 col-lg-7">
+    <div class="col-12 col-sm-12 col-md-6 col-lg-6">
 
         <div class="kanban-add-new-board mb-5">
             <label class="kanban-add-board-btn" for="kanban-add-board-input" data-bs-toggle="modal" data-bs-target="#filterModal">
@@ -19,9 +19,9 @@
                     {{ \Carbon\Carbon::now()->locale('pt_BR')->isoFormat('dddd [às] HH:mm') }}
                 </p>
                 <h4 class="text-success mb-0">
-                    R$ {{ number_format(Auth::user()->wallet, 2, ',', '.') }}
+                    R$ {{ number_format($balance, 2, ',', '.') }}
                 </h4>
-                <p class="mb-3">Os saques podem ser solicitados podem levar até 24 horas para serem processados.</p>
+                <p class="mb-3">Saques são processados às 20h</p>
                 <button type="button" class="btn btn-sm btn-warning waves-effect waves-light" data-bs-toggle="modal" data-bs-target="#createdModal">Solicitar Saque</button>
             </div>
             <img src="{{ asset('assets/img/illustrations/subscription_3.png') }}" class="scaleX-n1-rtl position-absolute bottom-0 end-0 me-4 mb-4 d-none d-md-block" height="112" alt="Carteira de Comissões">
@@ -31,7 +31,7 @@
             <div class="card-body">
                 <blockquote class="blockquote mb-0">
                     <h3>
-                        <strong>Comissões</strong><br/>
+                        <strong>Extrato</strong><br/>
                     </h3>
                     <footer class="blockquote-footer">
                         Os valores são somados automaticamente na sua carteira após confirmação de pagamento das vendas/produtos!<br/>
@@ -51,7 +51,7 @@
                             @foreach ($commissions as $commission)
                                 <tr>
                                     <td class="ps-0 py-4">
-                                        <small>{{ $commission->description, 30 }}</small> <br>
+                                        <small>{{ $commission->description }}</small> <br>
                                         <span class="ms-1 text-success">R$ {{ number_format($commission->value, 2, ',', '.') }}</span>
                                     </td>
                                     <td class="ps-0">
@@ -65,19 +65,16 @@
                         </tbody>
                     </table>
                 </div>
-                <div class="d-flex justify-content-center mt-2 mb-3">
-                    {{ $commissions->links() }}
-                </div>
             </div>
         </div>
     </div>
 
-    <div class="col-12 col-sm-12 col-md-5 col-lg-5">
+    <div class="col-12 col-sm-12 col-md-6 col-lg-6">
         <div class="card bg-warning mb-3">
             <div class="card-body pb-1 pt-0">
                 <div class="mb-6 mt-1">
                     <div class="d-flex align-items-center">
-                        <h1 class="mb-0 me-2 text-white">{{ $withdrawals->count() }}</h1>
+                        <h1 class="mb-0 me-2 text-white">{{ count($withdrawals) }}</h1>
                         <div class="badge bg-label-dark rounded-pill">Dados atualizados automáticamente</div>
                     </div>
                     <p class="mt-0 text-white">Saques</p>
@@ -99,32 +96,29 @@
                             @foreach ($withdrawals as $withdrawal)
                                 <tr>
                                     <td class="ps-0 py-4">
-                                        <span class="text-white">{{ Str::limit($withdrawal->description, 30) }}</span> <br>
-                                        <small class="text-white ms-1">R$ {{ number_format($withdrawal->value, 2, ',', '.') }}</small>
+                                        <span class="text-white">{{ Str::limit($withdrawal->description ?? $withdrawal['description'], 30) }}</span> <br>
+                                        <small class="text-white ms-1">R$ {{ number_format($withdrawal->value ?? $withdrawal['value'], 2, ',', '.') }}</small>
                                     </td>
                                     <td class="ps-0">
                                         <span class="text-white">
-                                            {{ $withdrawal->is_paid == true ? 'Pago' : 'Aguardando processamento...' }} <br>
-                                            <small>{!! $withdrawal->statusLabel() !!}</small>
+                                            {{ isset($withdrawal->is_paid) == true ? 'Pago' : 'Aguardando processamento...' }} <br>
+                                            {{-- <small>{!! $withdrawal->statusLabel() ?? '' !!}</small> --}}
                                         </span>
                                     </td>
                                     <td class="text-center">
-                                        @if($withdrawal->is_paid == false)
+                                        @if(isset($withdrawal->is_paid) && $withdrawal->is_paid == false)
                                             <form action="{{ route('deleted-withdrawal', ['uuid' => $withdrawal->uuid]) }}" method="POST" class="confirm">
                                                 @csrf
                                                 <button type="submit" class="btn btn-sm btn-danger"><i class="ri-close-circle-line"></i></button>
                                             </form>
                                         @else
-                                            <a href="{{ $withdrawal->payment_url }}" target="_blank" class="btn btn-sm btn-success text-white" title="Comprovante"><i class="ri-file-list-3-line"></i></a>
+                                            <a href="{{ isset($withdrawal->payment_url)  }}" target="_blank" class="btn btn-sm btn-success text-white" title="Comprovante"><i class="ri-file-list-3-line"></i></a>
                                         @endif
                                     </td>
                                 </tr>
                             @endforeach
                         </tbody>
                     </table>
-                    <div class="text-center">
-                        {{ $withdrawals->links() }}
-                    </div>
                 </div>
             </div>
         </div>

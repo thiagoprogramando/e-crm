@@ -252,12 +252,8 @@
                             <div class="row">
                                 <div class="form-floating form-floating-outline mb-2">
                                     <div class="form-check mt-4">
-                                        <input name="payment_customer" class="form-check-input" type="radio" value="CLIENT" id="payment_customer_client" checked required>
-                                        <label class="form-check-label" for="payment_customer_client">Pagamento com DADOS DO CLIENTE (Múltiplos Boletos)</label>
-                                    </div>
-                                    <div class="form-check mt-4">
-                                        <input name="payment_customer" class="form-check-input" type="radio" value="MY" id="payment_customer_my">
-                                        <label class="form-check-label" for="payment_customer_my"> Pagamento com MEUS DADOS (Único Boleto)</label>
+                                        <input name="customer" class="form-check-input" type="radio" value="MY" id="customer_my" checked readonly/>
+                                        <label class="form-check-label" for="customer_my"> Pagamento com MEUS DADOS (Único Boleto)</label>
                                     </div>
                                 </div>
                             </div>

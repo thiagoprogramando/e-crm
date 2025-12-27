@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Gateway\AssasController;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -164,6 +165,44 @@ class UserController extends Controller {
         }
 
         return redirect()->back()->with('error', 'Erro ao deletar usuário, tente novamente!');
+    }
+
+    public function validateBank (Request $request, $uuid) {
+
+        $user = User::where('uuid', $uuid)->first();
+        if (!$user) {
+            return redirect()->back()->with('error', 'Usuário não encontrado!');
+        }
+
+        switch (env('APP_BANK')) {
+            case 'ASAAS':
+                $assasController = new AssasController();
+
+                $validate = $assasController->validateToken($request->bank_api_key, $request->bank_api_wallet, $request->bank_api_customer);
+                if ($validate['success'] == true) {
+                    $user->bank_api_key      = $request->bank_api_key;
+                    $user->bank_api_wallet   = $request->bank_api_wallet;
+                    $user->bank_api_customer = $request->bank_api_customer;
+                } else {
+                    return redirect()->back()->with('error', 'Erro ao validar tokens bancários: ' . $validate['message']);
+                }
+                break;
+            case 'CORA':
+                $user->bank_api_key      = $request->bank_api_key;
+                $user->bank_api_wallet   = $request->bank_api_wallet;
+                $user->bank_api_customer = $request->bank_api_customer;
+                break;
+            case 'OFFLINE':
+                return redirect()->back()->with('infor', 'Não é necessária nenhuma integração bancária!');
+                break;
+            default:
+                return redirect()->back()->with('infor', 'Conexão bancária indisponível no momento, tente novamente mais tarde!');
+                break;
+        }
+
+        if ($user->save()) {
+            return redirect()->back()->with('success', 'Tokens bancários validados e salvos com sucesso!');
+        }
     }
 
     private function formatValue($valor) {

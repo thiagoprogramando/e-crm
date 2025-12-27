@@ -212,14 +212,14 @@
                                             </li>
                                             <li class="menu-item">
                                                 <a href="{{ route('wallet') }}" class="menu-link">
-                                                    <i class="menu-icon ri-wallet-line ri-22px scaleX-n1-rtl"></i>
-                                                    <div data-i18n="Carteira">Carteira</div>
+                                                    <i class="menu-icon tf-icons ri-group-line ri-22px scaleX-n1-rtl"></i>
+                                                    <div data-i18n="Cadastro de Parceiros">Cadastro de Parceiros</div>
                                                 </a>
                                             </li>
                                             <li class="menu-item">
-                                                <a href="{{ route('user', ['uuid' => Auth::user()->uuid]) }}#invoices" class="menu-link">
-                                                    <i class="menu-icon ri-bill-line ri-22px scaleX-n1-rtl"></i>
-                                                    <div data-i18n="Minhas Faturas">Minhas Faturas</div>
+                                                <a href="{{ route('searchs') }}" class="menu-link">
+                                                    <i class="menu-icon tf-icons ri-user-search-line ri-22px scaleX-n1-rtl"></i>
+                                                    <div data-i18n="Consultas">Consultas</div>
                                                 </a>
                                             </li>
                                         </ul>
@@ -237,9 +237,22 @@
                                     <li class="menu-item">
                                         <a href="" class="menu-link menu-toggle">
                                             <i class="menu-icon tf-icons ri-file-shield-2-line"></i>
-                                            <div data-i18n="Processos">Processos</div>
+                                            <div data-i18n="Serviços">Serviços</div>
                                         </a>
                                         <ul class="menu-sub">
+                                            @foreach ($products as $product)
+                                                <li class="menu-item">
+                                                    <a data-bs-toggle="modal" data-bs-target="#createdSaleModal" data-product="{{ $product->uuid }}" class="menu-link">
+                                                        <div data-i18n="{{ $product->title }}">{{ $product->title }}</div>
+                                                    </a>
+                                                </li>
+                                            @endforeach
+                                            <li class="menu-item">
+                                                <a href="{{ route('products')}}" class="menu-link">
+                                                    <i class="menu-icon tf-icons ri-barcode-line"></i>
+                                                    <div data-i18n="Produtos">Produtos</div>
+                                                </a>
+                                            </li>
                                             <li class="menu-item">
                                                 <a href="{{ route('lists') }}" class="menu-link">
                                                     <i class="menu-icon tf-icons ri-list-check-3"></i>
@@ -252,30 +265,29 @@
                                                     <div data-i18n="Vendas">Vendas</div>
                                                 </a>
                                             </li>
-                                            <li class="menu-item">
-                                                <a href="{{ route('products')}}" class="menu-link">
-                                                    <i class="menu-icon tf-icons ri-barcode-line"></i>
-                                                    <div data-i18n="Produtos">Produtos</div>
-                                                </a>
-                                            </li>
                                         </ul>
                                     </li>
 
                                     <li class="menu-item">
-                                        <a href="{{ route('searchs') }}" class="menu-link">
-                                            <i class="menu-icon tf-icons ri-user-search-line"></i>
-                                            <div data-i18n="Consultas">Consultas</div>
+                                        <a href="{{ route('wallet') }}" class="menu-link menu-toggle">
+                                            <i class="menu-icon tf-icons ri-wallet-line"></i>
+                                            <div data-i18n="Carteira">Carteira</div>
                                         </a>
+                                        <ul class="menu-sub">
+                                            <li class="menu-item">
+                                                <a href="{{ route('wallet') }}" class="menu-link">
+                                                    <i class="menu-icon tf-icons ri-wallet-line"></i>
+                                                    <div data-i18n="Carteira Digital">Carteira Digital</div>
+                                                </a>
+                                            </li>
+                                            <li class="menu-item">
+                                                <a href="{{ route('user', ['uuid' => Auth::user()->uuid]) }}#invoices" class="menu-link">
+                                                    <i class="menu-icon ri-bill-line ri-22px scaleX-n1-rtl"></i>
+                                                    <div data-i18n="Minhas Faturas">Minhas Faturas</div>
+                                                </a>
+                                            </li>
+                                        </ul>
                                     </li>
-
-                                    @if (Auth::user()->parent_id == 1)
-                                        <li class="menu-item">
-                                            <a href="{{ route('users') }}" class="menu-link">
-                                                <i class="menu-icon tf-icons ri-group-line"></i>
-                                                <div data-i18n="Afiliados">Afiliados</div>
-                                            </a>
-                                        </li>
-                                    @endif
 
                                     <li class="menu-item">
                                         <a href="" class="menu-link menu-toggle">
@@ -304,7 +316,7 @@
                                         <li class="menu-item">
                                             <a href="javascript:void(0)" class="menu-link menu-toggle">
                                                 <i class="menu-icon tf-icons ri-list-settings-line"></i>
-                                                <div data-i18n="Administração">Administração</div>
+                                                <div data-i18n="Configurações">Configurações</div>
                                             </a>
                                             <ul class="menu-sub">
                                                 <li class="menu-item">
@@ -365,6 +377,84 @@
                         <div class="content-backdrop fade"></div>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="createdSaleModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <form action="{{ route('created-sale') }}" method="POST" enctype="multipart/form-data" class="modal-content">
+                    @csrf
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="modalFullTitle">Nova Venda</h4>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row g-2">
+                            <div class="col-12 col-sm-12 col-md-12 col-lg-12">
+                                <div class="form-floating form-floating-outline mb-2">
+                                    <div class="select2-primary">
+                                        <select name="product_id" id="product_id" class="select2 form-select" required>
+                                            <option value=" ">Escolha um Produto</option>
+                                            @foreach ($products as $product)
+                                                <option value="{{ $product->uuid }}" data-addition="{{ Auth::user()->addition }}" data-options='@json($product->options)'>{{ $product->title }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <label for="product_id">Produto</label>
+                                </div>
+                            </div>
+                            <div class="col-12 col-sm-12 col-md-7 col-lg-7">
+                                <div class="form-floating form-floating-outline mb-2">
+                                    <input type="text" class="form-control" name="name" placeholder="Ex: João da Silva" required/>
+                                    <label>Nome <span class="text-danger">*</span></label>
+                                </div>
+                            </div>
+                            <div class="col-12 col-sm-12 col-md-5 col-lg-5">
+                                <div class="form-floating form-floating-outline mb-2">
+                                    <input type="text" class="form-control" name="cpfcnpj" oninput="maskCpfCnpj(this)" placeholder="000.000.000-00" required/>
+                                    <label for="cpfcnpj">CPF/CNPJ <span class="text-danger">*</span></label>
+                                </div>
+                            </div>
+                            <div class="col-12 col-sm-12 col-md-7 col-lg-7">
+                                <div class="form-floating form-floating-outline mb-2">
+                                    <input type="text" class="form-control" name="email" placeholder="Ex: joao@example.com"/>
+                                    <label for="email">E-mail</label>
+                                </div>
+                            </div>
+                            <div class="col-12 col-sm-12 col-md-5 col-lg-5">
+                                <div class="form-floating form-floating-outline mb-2">
+                                    <input type="text" class="form-control" name="phone" oninput="maskPhone(this)" placeholder="(00) 90000-0000"/>
+                                    <label for="phone">Telefone</label>
+                                </div>
+                            </div>
+                            
+                            <div class="col-12 col-sm-12 col-md-12 col-lg-12">
+                                <div class="divider">
+                                    <div class="divider-text">Opções de Pagamento</div>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div id="product-options-container"></div>
+                                <div class="row">
+                                    <div class="form-floating form-floating-outline mb-2">
+                                        <div class="form-check mt-4">
+                                            <input name="customer" class="form-check-input" type="radio" value="CLIENT" id="payment_customer_client" checked required>
+                                            <label class="form-check-label" for="payment_customer_client">Pagamento com DADOS DO CLIENTE</label>
+                                        </div>
+                                        <div class="form-check mt-4">
+                                            <input name="customer" class="form-check-input" type="radio" value="MY" id="payment_customer_my">
+                                            <label class="form-check-label" for="payment_customer_my"> Pagamento com MEUS DADOS </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal"> Fechar </button>
+                        <button type="submit" class="btn btn-success">Confirmar</button>
+                    </div>
+                </form>
             </div>
         </div>
 
@@ -512,6 +602,20 @@
                     input.addEventListener("change", function() {
                         this.closest("form").submit();
                     });
+                });
+
+                const modal = document.getElementById('createdSaleModal');
+                modal.addEventListener('show.bs.modal', function (event) {
+                    const trigger = event.relatedTarget; 
+                    const productId = trigger.getAttribute('data-product');
+
+                    if (productId) {
+                        const select = modal.querySelector('#product_id');
+                        select.value = productId;
+                        if ($(select).hasClass('select2')) {
+                            $(select).val(productId).trigger('change');
+                        }
+                    }
                 });
             });
 

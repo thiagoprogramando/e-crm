@@ -7,15 +7,15 @@ use App\Models\Commission;
 use App\Models\Invoice;
 use App\Models\Lists;
 use App\Models\Sale;
+use App\Models\User;
 use App\Models\Withdraw;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
+use Illuminate\Support\Facades\Auth;
 
 class AssasController extends Controller {
     
@@ -425,5 +425,106 @@ class AssasController extends Controller {
         }
         
         return response()->json(['message' => 'Nenhum Evento disponível!'], 200);
+    }
+
+    public function validateToken($apiKey, $apiWallet = null, $apiCustomer = null) {
+        try {
+            $client = new Client();
+            
+            $options = [
+                'headers' => [
+                    'Content-Type' => 'application/json',
+                    'access_token' => $apiKey,
+                    'User-Agent'   => env('APP_NAME')
+                ],
+                'verify' => false
+            ];
+    
+            $response = $client->get(env('API_BANK_URL') . 'v3/myAccount/status/', $options);
+            if ($response->getStatusCode() === 200) {
+                return [
+                    'success' => true,
+                    'message' => 'Tokens válidos!'
+                ];
+            } else {
+                return [
+                    'success' => false,
+                    'message' => 'Tokens inválidos!'
+                ];
+            }
+        } catch (\GuzzleHttp\Exception\ClientException $e) {
+            Log::error('Erro ao buscar status da conta: ' . $e->getMessage());
+            $decoded = json_decode($e->getResponse()->getBody()->getContents(), true);
+            return [
+                    'success' => false,
+                    'message' => $decoded['errors'][0]['description'] ?? 'Erro desconhecido'
+                ];
+        }
+    }
+
+    public function getBalance() {
+
+        $status = $this->validateToken(Auth::user()->token_key);
+        if (is_array($status) && (isset($status['general']) && ($status['general'] == 'APPROVED' || $status['general'] == 'AWAITING_APPROVA'))) {
+            try {
+
+                $client = new Client();
+                if (!Auth::user()) {
+                    throw new \Exception('Usuário não encontrado.');
+                }
+
+                $response = $client->request('GET', env('API_BANK_URL') . 'v3/finance/balance', [
+                    'headers' => [
+                        'accept'       => 'application/json',
+                        'access_token' => Auth::user()->token_key,
+                        'User-Agent'   => env('APP_NAME'),
+                    ],
+                    'verify' => env('APP_ENV') == 'local' ? false : true,
+                ]);
+
+                if ($response->getStatusCode() === 200) {
+                    $data = json_decode((string) $response->getBody(), true);
+                    return $data['balance'] ?? 0;
+                }
+
+                return false;
+            } catch (\Throwable $e) {
+                Log::error('Erro ao buscar saldo de '.Auth::user()->name.': ' . $e->getMessage());
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    public function getWithdrawals($start, $end) {
+        try {
+
+            $client     = new Client();
+            $startDate  = $start ?? now()->toDateString();
+            $finishDate = $end ?? now()->toDateString();
+    
+            $response = $client->request('GET', env('API_BANK_URL') . "v3/financialTransactions?startDate={$startDate}&finishDate={$finishDate}&order=desc", [
+                'headers' => [
+                    'accept'       => 'application/json',
+                    'access_token' => Auth::user()->bank_api_key,
+                    'User-Agent'   => env('APP_NAME')
+                ],
+                'verify' => false,
+            ]);
+    
+            if ($response->getStatusCode() !== 200) {
+                return [];
+            }
+    
+            return json_decode((string) $response->getBody(), true)['data'] ?? [];
+    
+        } catch (\Exception $e) {
+            return [];
+        }
+    }
+
+    public function getCommissions($start, $end) {
+        return [];
     }
 }

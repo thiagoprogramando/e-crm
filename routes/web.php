@@ -50,6 +50,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/updated-user/{uuid}', [UserController::class, 'update'])->name('updated-user');
     Route::post('/created-user', [UserController::class, 'store'])->name('created-user');
     Route::post('/deleted-user/{uuid}', [UserController::class, 'destroy'])->name('deleted-user');
+    Route::post('/validate-user-bank/{uuid}', [UserController::class, 'validateBank'])->name('validate-user-bank');
 
     if (env('APP_ENV') == 'local') {
         Route::get('/deploy', [CoraController::class, 'getToken'])->name('deploy');

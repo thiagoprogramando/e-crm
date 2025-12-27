@@ -3,21 +3,21 @@
 namespace App\Http\Controllers\Gateway;
 
 use App\Http\Controllers\Controller;
+
 use App\Models\Commission;
 use App\Models\Invoice;
 use App\Models\Lists;
 use App\Models\Sale;
 use App\Models\Withdraw;
+
 use App\Services\Cora\CoraAuthService;
+
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
-use Carbon\Carbon;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
-
 class CoraController extends Controller {
 
     public function getToken() {
@@ -44,11 +44,11 @@ class CoraController extends Controller {
                 ],
                 'json' => [
                     'customer' => [
-                        'name' => $customer->name,
-                        'email' => $customer->email ?? null,
+                        'name' => $customer['name'],
+                        'email' => $customer['email'] ?? null,
                         'document' => [
-                            'identity' => preg_replace('/\D/', '', $customer->cpfcnpj),
-                            'type'     => (strlen(preg_replace('/\D/', '', $customer->cpfcnpj)) == 11) ? 'CPF' : 'CNPJ',
+                            'identity' => preg_replace('/\D/', '', $customer['cpfcnpj']),
+                            'type'     => (strlen(preg_replace('/\D/', '', $customer['cpfcnpj'])) == 11) ? 'CPF' : 'CNPJ',
                         ],
                     ],
                     'services' => [
@@ -93,9 +93,7 @@ class CoraController extends Controller {
                 'status'  => 'error',
                 'message' => 'Falha na comunicação com a API Cora.'
             ];
-
         } catch (\Exception $e) {
-
             return [
                 'status'  => 'error',
                 'message' => $e->getMessage()
